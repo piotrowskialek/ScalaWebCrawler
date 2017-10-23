@@ -1,4 +1,4 @@
-package Crawler
+package WebCrawler
 
 import java.net.URL
 
@@ -11,15 +11,17 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-
+/**
+  * Created by apiotrowski on 14.10.2017.
+  */
 class SiteCrawler(supervisor: ActorRef, indexer: ActorRef) extends Actor {
   val process = "Process next url"
 
-  val scraper = context actorOf Props(new Scraper(indexer))
+  val scraper: ActorRef = context actorOf Props(new Scraper(indexer))
+
   implicit val timeout = Timeout(3 seconds)
-  val tick =
-    context.system.scheduler.schedule(0 millis, 1000 millis, self, process)
-  var toProcess = List.empty[URL]
+  val tick: Cancellable = context.system.scheduler.schedule(0 millis, 1000 millis, self, process)
+  var toProcess: List[URL] = List.empty[URL]
 
   def receive: Receive = {
     case Scrap(url) =>

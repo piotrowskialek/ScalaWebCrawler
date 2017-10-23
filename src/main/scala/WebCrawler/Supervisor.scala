@@ -1,4 +1,4 @@
-package Crawler
+package WebCrawler
 
 import java.net.URL
 
@@ -6,17 +6,22 @@ import akka.actor.{Actor, ActorSystem, Props, _}
 
 import scala.language.postfixOps
 
-
+/**
+  * Created by apiotrowski on 14.10.2017.
+  */
 class Supervisor(system: ActorSystem) extends Actor {
-  val indexer: ActorRef = context actorOf Props(new Indexer(self))
+
+  val dbRepository: ActorRef = context actorOf Props(new DbRepository())
+  val indexer: ActorRef = context actorOf Props(new Indexer(self, dbRepository))
 
   val maxPages = 100
   val maxRetries = 2
 
   var numVisited = 0
-  var toScrap = Set.empty[URL]
+  var toScrap: Set[URL] = Set.empty
+  var numToScrap: Int = toScrap.size
   var scrapCounts = Map.empty[URL, Int]
-  var host2Actor = Map.empty[String, ActorRef]
+  var hostActorRepository = Map.empty[String, ActorRef]
 
   def receive: Receive = {
     case Start(url) =>
@@ -33,7 +38,7 @@ class Supervisor(system: ActorSystem) extends Actor {
       println(s"scraping failed $url, $retries, reason = $reason")
       if (retries < maxRetries) {
         countVisits(url)
-        host2Actor(url.getHost) ! Scrap(url)
+        hostActorRepository(url.getHost) ! Scrap(url)
       } else
         checkAndShutdown(url)
   }
@@ -51,16 +56,18 @@ class Supervisor(system: ActorSystem) extends Actor {
     val host = url.getHost
     println(s"host = $host")
     if (!host.isEmpty) {
-      val actor = host2Actor.getOrElse(host, {
-        val buff = system.actorOf(Props(new SiteCrawler(self, indexer)))
-        host2Actor += (host -> buff)
-        buff
+      val siteCrawler = hostActorRepository.getOrElse(host, {
+        val newSiteCrawler = system actorOf Props(new SiteCrawler(self, indexer))
+        hostActorRepository += (host -> newSiteCrawler)
+        newSiteCrawler
       })
 
       numVisited += 1
+      numToScrap += 1
       toScrap += url
+
       countVisits(url)
-      actor ! Scrap(url)
+      siteCrawler ! Scrap(url)
     }
   }
 

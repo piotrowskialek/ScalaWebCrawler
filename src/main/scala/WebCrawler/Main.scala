@@ -1,4 +1,4 @@
-package Crawler
+package WebCrawler
 
 import java.net.URL
 
@@ -11,17 +11,16 @@ import scala.language.postfixOps
 /**
   * Created by apiotrowski on 14.10.2017.
   */
-object Main extends App{
+object Main extends App {
 
   val system = ActorSystem()
   val supervisor = system.actorOf(Props(new Supervisor(system)))
 
-  supervisor ! Start(new URL("https://foat.me"))
+  supervisor ! Start(new URL("http://www.elka.pw.edu.pl"))
 
-  Await.result(system.whenTerminated, 10 minutes)
+  Await.result(system.whenTerminated, 20 minutes)
 
   supervisor ! PoisonPill
   system.terminate
-
 
 }
