@@ -9,12 +9,12 @@ import scala.language.postfixOps
 /**
   * Created by apiotrowski on 14.10.2017.
   */
-class Supervisor(system: ActorSystem) extends Actor {
+class Supervisor(system: ActorSystem, keyWord: String) extends Actor {
 
   val dbRepository: ActorRef = context actorOf Props(new DbRepository())
   val indexer: ActorRef = context actorOf Props(new Indexer(self, dbRepository))
 
-  val maxPages = 100
+  val maxPages = 1000
   val maxRetries = 2
 
   var numVisited = 0
@@ -32,6 +32,7 @@ class Supervisor(system: ActorSystem) extends Actor {
     case IndexFinished(url, urls) =>
       if (numVisited < maxPages)
         urls.toSet.filter(l => !scrapCounts.contains(l)).foreach(scrap)
+
       checkAndShutdown(url)
     case ScrapFailure(url, reason) =>
       val retries: Int = scrapCounts(url)
@@ -57,7 +58,7 @@ class Supervisor(system: ActorSystem) extends Actor {
     println(s"host = $host")
     if (!host.isEmpty) {
       val siteCrawler = hostActorRepository.getOrElse(host, {
-        val newSiteCrawler = system actorOf Props(new SiteCrawler(self, indexer))
+        val newSiteCrawler = system actorOf Props(new SiteCrawler(self, indexer, keyWord))
         hostActorRepository += (host -> newSiteCrawler)
         newSiteCrawler
       })

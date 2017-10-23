@@ -4,6 +4,7 @@ import java.net.URL
 
 import akka.actor.{Actor, ActorRef}
 import org.apache.commons.validator.routines.UrlValidator
+import org.jsoup.nodes.Document
 import org.jsoup.{Connection, Jsoup}
 
 import scala.collection.JavaConverters._
@@ -11,7 +12,7 @@ import scala.collection.JavaConverters._
 /**
   * Created by apiotrowski on 14.10.2017.
   */
-class Scraper(indexer: ActorRef) extends Actor {
+class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
   val urlValidator = new UrlValidator()
 
   def receive: Receive = {
@@ -29,16 +30,18 @@ class Scraper(indexer: ActorRef) extends Actor {
 
     val contentType: String = response.contentType
     if (contentType.startsWith("text/html")) {
-      val doc = response.parse()
+      val doc: Document = response.parse()
+
+      val listOfInfos: List[String] = doc.getAllElements.asScala.map(e => e.text())
+        .filter(s => s.toLowerCase.contains(keyWord)).toList
+
       val title: String = doc.getElementsByTag("title").asScala.map(e => e.text()).head
-      val descriptionTag = doc.getElementsByTag("meta").asScala.filter(e => e.attr("name") == "description")
-      val description = if (descriptionTag.isEmpty) "" else descriptionTag.map(e => e.attr("content")).head
       val links: List[URL] = doc.getElementsByTag("a").asScala.map(e => e.attr("href")).filter(s =>
         urlValidator.isValid(s)).map(link => new URL(link)).toList
-      return Content(title, description, links)
+      return Content(title, listOfInfos, links)
     } else {
-      // e.g. if this is an image
-      return Content(link, contentType, List())
+      //if not a html document for example an image
+      return Content(link, List(), List())
     }
   }
 }

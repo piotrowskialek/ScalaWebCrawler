@@ -14,10 +14,10 @@ import scala.language.postfixOps
 /**
   * Created by apiotrowski on 14.10.2017.
   */
-class SiteCrawler(supervisor: ActorRef, indexer: ActorRef) extends Actor {
+class SiteCrawler(supervisor: ActorRef, indexer: ActorRef, keyWord: String) extends Actor {
   val process = "Process next url"
 
-  val scraper: ActorRef = context actorOf Props(new Scraper(indexer))
+  val scraper: ActorRef = context actorOf Props(new Scraper(indexer, keyWord))
 
   implicit val timeout = Timeout(3 seconds)
   val tick: Cancellable = context.system.scheduler.schedule(0 millis, 1000 millis, self, process)
