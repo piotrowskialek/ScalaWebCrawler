@@ -32,12 +32,19 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
     if (contentType.startsWith("text/html")) {
       val doc: Document = response.parse()
 
-      val listOfInfos: List[String] = doc.getAllElements.asScala.map(e => e.text())
-        .filter(s => s.toLowerCase.contains(keyWord)).toList
+      val listOfInfos: List[String] = doc.getAllElements.asScala
+        .map(e => e.text())
+        .filter(s => s.toLowerCase.contains(keyWord))
+        .toList
 
-      val title: String = doc.getElementsByTag("title").asScala.map(e => e.text()).head
-      val links: List[URL] = doc.getElementsByTag("a").asScala.map(e => e.attr("href")).filter(s =>
-        urlValidator.isValid(s)).map(link => new URL(link)).toList
+      val title: String = doc.getElementsByTag("title").asScala
+        .map(e => e.text())
+        .head
+      val links: List[URL] = doc.getElementsByTag("a").asScala
+        .map(e => e.attr("href"))
+        .filter(s => urlValidator.isValid(s))
+        .map(link => new URL(link))
+        .toList
       return Content(title, listOfInfos, links)
     } else {
       //if not a html document for example an image

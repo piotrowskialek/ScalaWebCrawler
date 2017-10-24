@@ -14,12 +14,11 @@ class Supervisor(system: ActorSystem, keyWord: String) extends Actor {
   val dbRepository: ActorRef = context actorOf Props(new DbRepository())
   val indexer: ActorRef = context actorOf Props(new Indexer(self, dbRepository))
 
-  val maxPages = 1000
+  val maxPages = 500
   val maxRetries = 2
 
   var numVisited = 0
-  var toScrap: Set[URL] = Set.empty
-  var numToScrap: Int = toScrap.size
+  var indexedUrls: Set[URL] = Set.empty
   var scrapCounts = Map.empty[URL, Int]
   var hostActorRepository = Map.empty[String, ActorRef]
 
@@ -31,7 +30,9 @@ class Supervisor(system: ActorSystem, keyWord: String) extends Actor {
       println(s"scraping finished $url")
     case IndexFinished(url, urls) =>
       if (numVisited < maxPages)
-        urls.toSet.filter(l => !scrapCounts.contains(l)).foreach(scrap)
+        urls.toSet
+          .filter(l => !scrapCounts.contains(l))
+          .foreach(scrap)
 
       checkAndShutdown(url)
     case ScrapFailure(url, reason) =>
@@ -45,9 +46,9 @@ class Supervisor(system: ActorSystem, keyWord: String) extends Actor {
   }
 
   def checkAndShutdown(url: URL): Unit = {
-    toScrap -= url
+    indexedUrls -= url
     // if nothing to visit
-    if (toScrap.isEmpty) {
+    if (indexedUrls.isEmpty) {
       self ! PoisonPill
       system.terminate()
     }
@@ -64,8 +65,7 @@ class Supervisor(system: ActorSystem, keyWord: String) extends Actor {
       })
 
       numVisited += 1
-      numToScrap += 1
-      toScrap += url
+      indexedUrls += url
 
       countVisits(url)
       siteCrawler ! Scrap(url)

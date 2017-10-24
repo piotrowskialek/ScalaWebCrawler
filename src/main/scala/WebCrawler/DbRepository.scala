@@ -2,7 +2,6 @@ package WebCrawler
 
 import java.net.URL
 
-//import WebCrawler.Main.collection
 import akka.actor.Actor
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
@@ -29,6 +28,8 @@ class DbRepository() extends Actor {
 
         val insertDocument = MongoDBObject(url.toString.replace(".",";") -> List[String](info))
         collection.insert(insertDocument)
+        println(s"Saving: $url and $info")
+        sender() ! PersistingFinished(url)
 
       } else {
 
@@ -40,6 +41,8 @@ class DbRepository() extends Actor {
         infos = info :: infos
         val updateDocument = MongoDBObject(url.toString.replace(".",";") -> infos)
         collection.update(findQuery, updateDocument)
+        println(s"Saving: $url and $info")
+        sender() ! PersistingFinished(url)
 
       }
 
