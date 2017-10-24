@@ -3,9 +3,6 @@ package WebCrawler
 import java.net.URL
 
 import akka.actor.{Actor, ActorRef}
-import akka.pattern.ask
-
-import scala.concurrent.Future
 
 
 /**
@@ -19,8 +16,9 @@ class Indexer(supervisor: ActorRef, repository: ActorRef) extends Actor {
       println(s"saving page $url with $content")
       indexedPages += (url -> content)
       for(info <- content.listOfInfos)
-        (repository ? Persist(url, info)).mapTo[PersistingFinished].recoverWith({
-          case e => Future {println(s"Persisting: $url failed!!!"); ScrapFailure(url,e)}})
+        (repository ! Persist(url, info))
+//          .mapTo[PersistingFinished].recoverWith({
+//          case e => Future {println(s"Persisting: $url failed!!!"); PersistingFailed(url)}})
 
       supervisor ! IndexFinished(url, content.urls)
 

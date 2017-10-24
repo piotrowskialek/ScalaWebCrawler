@@ -29,7 +29,7 @@ class DbRepository() extends Actor {
         val insertDocument = MongoDBObject(url.toString.replace(".",";") -> List[String](info))
         collection.insert(insertDocument)
         println(s"Saving: $url and $info")
-        sender() ! PersistingFinished(url)
+//        sender() ! PersistingFinished(url)
 
       } else {
 
@@ -42,7 +42,7 @@ class DbRepository() extends Actor {
         val updateDocument = MongoDBObject(url.toString.replace(".",";") -> infos)
         collection.update(findQuery, updateDocument)
         println(s"Saving: $url and $info")
-        sender() ! PersistingFinished(url)
+//        sender() ! PersistingFinished(url)
 
       }
 
