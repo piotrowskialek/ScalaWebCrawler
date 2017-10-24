@@ -32,7 +32,7 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
     if (contentType.startsWith("text/html")) {
       val doc: Document = response.parse()
 
-      val listOfInfos: List[String] = doc.getAllElements.asScala
+      val listOfInfos: List[String] = doc.getElementsByClass("postbody").asScala
         .map(e => e.text())
         .filter(s => s.toLowerCase.contains(keyWord))
         .toList
