@@ -15,34 +15,37 @@ class DbRepository() extends Actor {
 
   val mongoClient: MongoClient = MongoClient("localhost", 27017)
   val db: MongoDB = mongoClient("web_crawler")
-  val collection: MongoCollection = db("siteInfo")
+  val collection: MongoCollection = db("site_info")
 
   def receive: Receive = {
     case Persist(url: URL, info) =>
 
       println(s"Persist: $url")
 
-      val findQuery = url.toString.replace(".",";") $exists true
+      val findQuery = url.toString.replace(".", ";") $exists true
       val result: MongoCursor = collection.find(findQuery)
-      if(result.size == 0){
+      if (result.size == 0) {
 
-        val insertDocument = MongoDBObject(url.toString.replace(".",";") -> List[String](info))
+        val insertDocument = MongoDBObject(url.toString.replace(".", ";") -> List[String](info))
         collection.insert(insertDocument)
         println(s"Saving: $url and $info")
-//        sender() ! PersistingFinished(url)
+        //        sender() ! PersistingFinished(url)
 
       } else {
 
-        val parsedInfos: AnyRef = result.one().get(url.toString.replace(".",";"))
+        val parsedInfos: AnyRef = result.one().get(url.toString.replace(".", ";"))
+
         var infos: List[Any] = parsedInfos match {
           case list: BasicDBList => list.toList
           case _ => throw new ClassCastException
         }
-        infos = info :: infos
-        val updateDocument = MongoDBObject(url.toString.replace(".",";") -> infos)
-        collection.update(findQuery, updateDocument)
-        println(s"Saving: $url and $info")
-//        sender() ! PersistingFinished(url)
+        if (!infos.contains(info)) { //pomyslec tu bo spie juz
+          infos = info :: infos
+          val updateDocument = MongoDBObject(url.toString.replace(".", ";") -> infos)
+          collection.update(findQuery, updateDocument)
+          println(s"Saving: $url and $info")
+          //        sender() ! PersistingFinished(url)
+        }
 
       }
 

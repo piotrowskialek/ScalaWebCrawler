@@ -15,6 +15,7 @@ import scala.language.postfixOps
   * Created by apiotrowski on 14.10.2017.
   */
 class SiteCrawler(supervisor: ActorRef, indexer: ActorRef, keyWord: String) extends Actor {
+
   val process = "Process next url"
 
   val scraper: ActorRef = context actorOf Props(new Scraper(indexer, keyWord))
@@ -35,7 +36,10 @@ class SiteCrawler(supervisor: ActorRef, indexer: ActorRef, keyWord: String) exte
           println(s"site scraping... $url")
           toProcess = list
           (scraper ? Scrap(url)).mapTo[ScrapFinished]
-            .recoverWith { case e => Future {ScrapFailure(url, e)} }
+            .recoverWith { case e => Future {
+              ScrapFailure(url, e)
+            }
+            }
             .pipeTo(supervisor)
       }
   }

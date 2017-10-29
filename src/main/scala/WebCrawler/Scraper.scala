@@ -13,6 +13,7 @@ import scala.collection.JavaConverters._
   * Created by apiotrowski on 14.10.2017.
   */
 class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
+
   val urlValidator = new UrlValidator()
 
   def receive: Receive = {
@@ -30,21 +31,35 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
 
     val contentType: String = response.contentType
     if (contentType.startsWith("text/html")) {
+
       val doc: Document = response.parse()
 
       val listOfInfos: List[String] = doc.getElementsByClass("postbody").asScala
         .map(e => e.text())
-//        .filter(s => s.toLowerCase.contains(keyWord))
+        .filter(s => s.toLowerCase.contains(keyWord))
         .toList
 
       val title: String = doc.getElementsByTag("title").asScala
         .map(e => e.text())
         .head
+
       val links: List[URL] = doc.getElementsByTag("a").asScala
-        .map(e => e.attr("href"))
-        .filter(s => urlValidator.isValid(s))
-        .map(link => new URL(link))
+        .map(u => {
+          if (u.attr("href").startsWith("."))
+            url.getHost + u.attr("href").substring(1)
+          else
+            u.attr("href")
+        })
+        .map(u => {
+          if (!u.startsWith("http"))
+            "http://" + u
+          else
+            u
+        })
+        .filter(u => urlValidator.isValid(u))
+        .map(link => new URL(link)) //filtracje poza host dodać
         .toList
+
       return Content(title, listOfInfos, links)
     } else {
       //if not a html document for example an image

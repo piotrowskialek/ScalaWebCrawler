@@ -9,14 +9,15 @@ import akka.actor.{Actor, ActorRef}
   * Created by apiotrowski on 14.10.2017.
   */
 class Indexer(supervisor: ActorRef, repository: ActorRef) extends Actor {
+
   var indexedPages = Map.empty[URL, Content]
 
   def receive: Receive = {
     case Index(url, content) =>
       println(s"saving page $url with $content")
       indexedPages += (url -> content)
-      for(info <- content.listOfInfos)
-        (repository ! Persist(url, info))
+      for(info <- content.attributes)
+        repository ! Persist(url, info)
 //          .mapTo[PersistingFinished].recoverWith({
 //          case e => Future {println(s"Persisting: $url failed!!!"); PersistingFailed(url)}})
 

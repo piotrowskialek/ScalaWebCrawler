@@ -14,7 +14,7 @@ class Supervisor(system: ActorSystem, keyWord: String) extends Actor {
   val dbRepository: ActorRef = context actorOf Props(new DbRepository())
   val indexer: ActorRef = context actorOf Props(new Indexer(self, dbRepository))
 
-  val maxPages = 500
+  val maxPages = 5000
   val maxRetries = 2
 
   var numVisited = 0
@@ -28,7 +28,7 @@ class Supervisor(system: ActorSystem, keyWord: String) extends Actor {
       scrap(url)
     case ScrapFinished(url) =>
       println(s"scraping finished $url")
-    case IndexFinished(url, urls) =>
+    case IndexFinished(url, urls) => //tu hosty wyrzucić
       if (numVisited < maxPages)
         urls.toSet
           .filter(l => !scrapCounts.contains(l))

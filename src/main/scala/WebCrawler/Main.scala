@@ -13,6 +13,13 @@ import scala.language.postfixOps
   */
 object Main extends App {
 
+
+//  val stemm = new PolishStemmer
+//  val res = stemm.lookup("telefoniczna").get(0).getStem
+//  val res2 = stemm.lookup("telefoniczna").get(0).getTag
+//  val res3 = stemm.lookup("telefoniczna").get(0).getWord
+//  2+2
+
   val system = ActorSystem()
   val keyWord: String = args(0)
   val supervisor = system.actorOf(Props(new Supervisor(system, keyWord)))
