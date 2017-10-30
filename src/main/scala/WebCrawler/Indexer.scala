@@ -14,7 +14,7 @@ class Indexer(supervisor: ActorRef, repository: ActorRef) extends Actor {
 
   def receive: Receive = {
     case Index(url, content) =>
-      println(s"saving page $url with $content")
+      println(s"indexing page $url")
       indexedPages += (url -> content)
       for(info <- content.attributes)
         repository ! Persist(url, info)

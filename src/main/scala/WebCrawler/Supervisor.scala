@@ -21,6 +21,7 @@ class Supervisor(system: ActorSystem, keyWord: String) extends Actor {
   var indexedUrls: Set[URL] = Set.empty
   var scrapCounts = Map.empty[URL, Int]
   var hostActorRepository = Map.empty[String, ActorRef]
+  val listOfForbiddenHosts: List[String] = List[String]("google","facebook","twitter") //zastanowic sie czy tak ladnie
 
   def receive: Receive = {
     case Start(url) =>
@@ -28,10 +29,11 @@ class Supervisor(system: ActorSystem, keyWord: String) extends Actor {
       scrap(url)
     case ScrapFinished(url) =>
       println(s"scraping finished $url")
-    case IndexFinished(url, urls) => //tu hosty wyrzucić
+    case IndexFinished(url, urls) =>
       if (numVisited < maxPages)
         urls.toSet
           .filter(l => !scrapCounts.contains(l))
+          .filter(l => !listOfForbiddenHosts.exists(l.getHost.contains(_)))
           .foreach(scrap)
 
       checkAndShutdown(url)

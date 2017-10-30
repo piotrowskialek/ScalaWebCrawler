@@ -39,7 +39,7 @@ class DbRepository() extends Actor {
           case list: BasicDBList => list.toList
           case _ => throw new ClassCastException
         }
-        if (!infos.contains(info)) { //pomyslec tu bo spie juz
+        if (!infos.contains(info)) {
           infos = info :: infos
           val updateDocument = MongoDBObject(url.toString.replace(".", ";") -> infos)
           collection.update(findQuery, updateDocument)
