@@ -3,7 +3,6 @@ package WebCrawler
 import java.net.URL
 
 import akka.actor.{ActorSystem, PoisonPill, Props}
-import morfologik.stemming.polish.PolishStemmer
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -13,6 +12,22 @@ import scala.language.postfixOps
   * Created by apiotrowski on 14.10.2017.
   */
 object Main extends App {
+
+  import java.util.Locale
+
+  import morfologik.stemming.polish.PolishStemmer
+
+  val stemmer = new PolishStemmer
+
+  val in = "Nie zabrakło oczywiście wpadek. Największym zaskoczeniem okazał się dla nas strój Katarzyny Zielińskiej, której ewidentnie o coś chodziło, ale wciąż nie wiemy o co."
+  for (t <- in.toLowerCase(new Locale("pl")).split("[\\s\\.\\,]+")) {
+    System.out.println("> '" + t + "'")
+      stemmer.lookup(t).forEach(wd => {
+        System.out.print("  - " + (if (wd.getStem == null) "<null>"
+        else wd.getStem) + ", " + wd.getTag)
+      })
+    System.out.println()
+  }
 
   val stemm = new PolishStemmer
   val xD = stemm.lookup("białe")
