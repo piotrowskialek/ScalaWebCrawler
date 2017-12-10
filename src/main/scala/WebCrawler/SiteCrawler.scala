@@ -20,7 +20,7 @@ class SiteCrawler(supervisor: ActorRef, indexer: ActorRef, keyWord: String) exte
 
   val scraper: ActorRef = context actorOf Props(new Scraper(indexer, keyWord))
 
-  implicit val timeout = Timeout(3 seconds)
+  implicit val timeout: Timeout = Timeout(3 seconds)
   val tick: Cancellable = context.system.scheduler.schedule(0 millis, 1000 millis, self, process)
   var toProcess: List[URL] = List.empty[URL]
 
@@ -36,9 +36,10 @@ class SiteCrawler(supervisor: ActorRef, indexer: ActorRef, keyWord: String) exte
           println(s"site scraping... $url")
           toProcess = list
           (scraper ? Scrap(url)).mapTo[ScrapFinished]
-            .recoverWith { case e => Future {
-              ScrapFailure(url, e)
-            }
+            .recoverWith {
+              case e => Future {
+                ScrapFailure(url, e)
+              }
             }
             .pipeTo(supervisor)
       }

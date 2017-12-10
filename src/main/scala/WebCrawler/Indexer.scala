@@ -11,17 +11,22 @@ import akka.actor.{Actor, ActorRef}
 class Indexer(supervisor: ActorRef, repository: ActorRef) extends Actor {
 
   var indexedPages = Map.empty[URL, Content]
+//  val repository2: ActorRef = context actorOf Props(new DbRepository)
+
 
   def receive: Receive = {
     case Index(url, content) =>
       println(s"indexing page $url")
       indexedPages += (url -> content)
       for(info <- content.attributes)
-        repository ! Persist(url, info)
-//          .mapTo[PersistingFinished].recoverWith({
-//          case e => Future {println(s"Persisting: $url failed!!!"); PersistingFailed(url)}})
+        supervisor ! IndexFinished(url, content.urls)
+    //        (repository2 ? Persist(url, info)).mapTo[PersistFinished]
+    //          .recoverWith { case e => Future {
+    //            PersistFailed(url, e)
+    //          }
+    //          }
 
-      supervisor ! IndexFinished(url, content.urls)
+    //      repository ! Persist(url, info)
 
   }
 

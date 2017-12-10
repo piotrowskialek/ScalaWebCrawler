@@ -34,6 +34,7 @@ class Supervisor(system: ActorSystem, keyWord: String) extends Actor {
         urls.toSet
           .filter(l => !scrapCounts.contains(l))
           .filter(l => !listOfForbiddenHosts.exists(l.getHost.contains(_)))
+          .filter(l => l.getHost.endsWith("pl"))
           .foreach(scrap)
 
       checkAndShutdown(url)

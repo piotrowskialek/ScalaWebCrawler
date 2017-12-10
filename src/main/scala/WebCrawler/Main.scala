@@ -3,6 +3,7 @@ package WebCrawler
 import java.net.URL
 
 import akka.actor.{ActorSystem, PoisonPill, Props}
+import morfologik.stemming.polish.PolishStemmer
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -13,12 +14,11 @@ import scala.language.postfixOps
   */
 object Main extends App {
 
-
-//  val stemm = new PolishStemmer
-//  val res = stemm.lookup("telefoniczna").get(0).getStem
-//  val res2 = stemm.lookup("telefoniczna").get(0).getTag
-//  val res3 = stemm.lookup("telefoniczna").get(0).getWord
-//  2+2
+  val stemm = new PolishStemmer
+  val xD = stemm.lookup("białe")
+  val res = stemm.lookup("białe").get(0).getStem
+  val res2 = stemm.lookup("białe").get(0).getTag
+  val res3 = stemm.lookup("białe").get(0).getWord
 
   val system = ActorSystem()
   val keyWord: String = args(0)

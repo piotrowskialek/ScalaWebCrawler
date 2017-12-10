@@ -39,6 +39,7 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
         .filter(s => s.toLowerCase.contains(keyWord))
         .toList
 
+
       val title: String = doc.getElementsByTag("title").asScala
         .map(e => e.text())
         .head
@@ -57,13 +58,12 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
             u
         })
         .filter(u => urlValidator.isValid(u))
-        .map(link => new URL(link)) //filtracje poza host dodać
+        .map(link => new URL(link))
         .toList
 
       return Content(title, listOfInfos, links)
     } else {
-      //if not a html document for example an image
-      return Content(link, List(), List())
+      return Content(link, List(), List()) //jezeli nie html tylko jakis obrazek to pusty kontent
     }
   }
 }

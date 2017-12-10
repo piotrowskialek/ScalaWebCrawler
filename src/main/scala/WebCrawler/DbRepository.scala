@@ -24,14 +24,13 @@ class DbRepository() extends Actor {
 
       val findQuery = url.toString.replace(".", ";") $exists true
       val result: MongoCursor = collection.find(findQuery)
-      if (result.size == 0) {
+      if (result.size == 0) { //brak takiego urla
 
         val insertDocument = MongoDBObject(url.toString.replace(".", ";") -> List[String](info))
         collection.insert(insertDocument)
         println(s"Saving: $url and $info")
-        //        sender() ! PersistingFinished(url)
 
-      } else {
+      } else {  //istnieje taki url, dopisanie do listy
 
         val parsedInfos: AnyRef = result.one().get(url.toString.replace(".", ";"))
 
@@ -39,15 +38,15 @@ class DbRepository() extends Actor {
           case list: BasicDBList => list.toList
           case _ => throw new ClassCastException
         }
-        if (!infos.contains(info)) {
+        if (!infos.contains(info)) {  //jezeli juz jest taki post
           infos = info :: infos
           val updateDocument = MongoDBObject(url.toString.replace(".", ";") -> infos)
           collection.update(findQuery, updateDocument)
           println(s"Saving: $url and $info")
-          //        sender() ! PersistingFinished(url)
         }
 
       }
 
+      sender() ! PersistFinished(url)
   }
 }
