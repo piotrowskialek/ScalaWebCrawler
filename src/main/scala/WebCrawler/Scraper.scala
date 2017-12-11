@@ -4,13 +4,14 @@ import java.net.URL
 
 import akka.actor.{Actor, ActorRef, Props, _}
 import akka.pattern.ask
+import akka.util.Timeout
 import org.apache.commons.validator.routines.UrlValidator
 import org.jsoup.nodes.Document
 import org.jsoup.{Connection, Jsoup}
 
 import scala.collection.JavaConverters._
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
 
 /**
@@ -20,6 +21,7 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
 
   val urlValidator = new UrlValidator()
   val stemmer: ActorRef = context actorOf Props(new Stemmer)
+  implicit val timeout: Timeout = Timeout(1 second)
 
   def receive: Receive = {
     case Scrap(url: URL) =>
@@ -66,10 +68,8 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
         .map(link => new URL(link))
         .toList
 
-      val d: Future[Any] = stemmer ? Stem("")
-
       listOfInfos = listOfInfos.map(s => {
-        Await.result((stemmer ? Stem(s)).mapTo[StemFinished], Duration(1000, "milis")).stem
+        Await.result((stemmer ? Stem(s)).mapTo[StemFinished], timeout.duration).stem
       })
 
       return Content(title, listOfInfos, links)

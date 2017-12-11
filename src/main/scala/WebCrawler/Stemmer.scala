@@ -10,7 +10,7 @@ class Stemmer extends Actor {
   }
 
   def stem(word: String): String = {
-    ""
+    word
   }
 
 }
