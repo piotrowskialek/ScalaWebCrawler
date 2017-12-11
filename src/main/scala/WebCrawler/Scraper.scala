@@ -2,12 +2,16 @@ package WebCrawler
 
 import java.net.URL
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.{Actor, ActorRef, Props, _}
+import akka.pattern.ask
 import org.apache.commons.validator.routines.UrlValidator
 import org.jsoup.nodes.Document
 import org.jsoup.{Connection, Jsoup}
 
 import scala.collection.JavaConverters._
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
+
 
 /**
   * Created by apiotrowski on 14.10.2017.
@@ -15,6 +19,7 @@ import scala.collection.JavaConverters._
 class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
 
   val urlValidator = new UrlValidator()
+  val stemmer: ActorRef = context actorOf Props(new Stemmer)
 
   def receive: Receive = {
     case Scrap(url: URL) =>
@@ -34,7 +39,7 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
 
       val doc: Document = response.parse()
 
-      val listOfInfos: List[String] = doc.getElementsByClass("postbody").asScala
+      var listOfInfos: List[String] = doc.getElementsByClass("postbody").asScala
         .map(e => e.text())
         .filter(s => s.toLowerCase.contains(keyWord))
         .toList
@@ -60,6 +65,12 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
         .filter(u => urlValidator.isValid(u))
         .map(link => new URL(link))
         .toList
+
+      val d: Future[Any] = stemmer ? Stem("")
+
+      listOfInfos = listOfInfos.map(s => {
+        Await.result((stemmer ? Stem(s)).mapTo[StemFinished], Duration(1000, "milis")).stem
+      })
 
       return Content(title, listOfInfos, links)
     } else {
