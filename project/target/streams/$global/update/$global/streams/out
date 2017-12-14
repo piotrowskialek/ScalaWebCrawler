@@ -6009,7 +6009,7 @@
 [debug] 	[NOT REQUIRED] org.scala-sbt#template-resolver;0.1!template-resolver.jar
 [debug] 	[NOT REQUIRED] org.scala-lang#jline;2.10.6!jline.jar
 [debug] 	[NOT REQUIRED] org.fusesource.jansi#jansi;1.4!jansi.jar
-[debug] :: resolution report :: resolve 2860ms :: artifacts dl 45ms
+[debug] :: resolution report :: resolve 9397ms :: artifacts dl 256ms
 [debug] 	report for default#scalawebcrawler-build;0.1-SNAPSHOT compile produced in /Users/apiotrowski/dev/ScalaWebCrawler/project/target/scala-2.10/sbt-0.13/resolution-cache/reports/default-scalawebcrawler-build-compile.xml
 [debug] 	report for default#scalawebcrawler-build;0.1-SNAPSHOT runtime produced in /Users/apiotrowski/dev/ScalaWebCrawler/project/target/scala-2.10/sbt-0.13/resolution-cache/reports/default-scalawebcrawler-build-runtime.xml
 [debug] 	report for default#scalawebcrawler-build;0.1-SNAPSHOT test produced in /Users/apiotrowski/dev/ScalaWebCrawler/project/target/scala-2.10/sbt-0.13/resolution-cache/reports/default-scalawebcrawler-build-test.xml
@@ -6023,5 +6023,5 @@
 [debug] 	report for default#scalawebcrawler-build;0.1-SNAPSHOT docs produced in /Users/apiotrowski/dev/ScalaWebCrawler/project/target/scala-2.10/sbt-0.13/resolution-cache/reports/default-scalawebcrawler-build-docs.xml
 [debug] 	report for default#scalawebcrawler-build;0.1-SNAPSHOT pom produced in /Users/apiotrowski/dev/ScalaWebCrawler/project/target/scala-2.10/sbt-0.13/resolution-cache/reports/default-scalawebcrawler-build-pom.xml
 [debug] 	report for default#scalawebcrawler-build;0.1-SNAPSHOT scala-tool produced in /Users/apiotrowski/dev/ScalaWebCrawler/project/target/scala-2.10/sbt-0.13/resolution-cache/reports/default-scalawebcrawler-build-scala-tool.xml
-[debug] 	resolve done (2860ms resolve - 45ms download)
+[debug] 	resolve done (9397ms resolve - 256ms download)
 [info] Done updating.
