@@ -3,7 +3,7 @@ package WebCrawler
 import akka.actor.Actor
 import morfologik.stemming.polish.PolishStemmer
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 class Stemmer extends Actor {
 
@@ -14,6 +14,6 @@ class Stemmer extends Actor {
       sender() ! StemFinished(word, stem(word))
   }
 
-  def stem(word: String): String = stemmer.lookup(word).map(wd => wd.getStem.toString).reduce(_ + "/" + _)
+  def stem(word: String): String = stemmer.lookup(word).asScala.map(wd => wd.getStem.toString).reduce(_ + "/" + _)
 
 }
