@@ -1,17 +1,15 @@
 package WebCrawler
 
 import java.net.URL
+import java.util.Locale
 
-import akka.actor.{Actor, ActorRef, Props, _}
-import akka.pattern.ask
-import akka.util.Timeout
+import akka.actor.{Actor, ActorRef, _}
+import morfologik.stemming.polish.PolishStemmer
 import org.apache.commons.validator.routines.UrlValidator
 import org.jsoup.nodes.Document
 import org.jsoup.{Connection, Jsoup}
 
 import scala.collection.JavaConverters._
-import scala.concurrent.Await
-import scala.concurrent.duration._
 
 
 /**
@@ -20,8 +18,7 @@ import scala.concurrent.duration._
 class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
 
   val urlValidator = new UrlValidator()
-  val stemmer: ActorRef = context actorOf Props(new Stemmer)
-  implicit val timeout: Timeout = Timeout(1 second)
+  val stemmer = new Stemmer(new PolishStemmer)
 
   def receive: Receive = {
     case Scrap(url: URL) =>
@@ -69,7 +66,12 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
         .toList
 
       listOfInfos = listOfInfos.map(s => {
-        Await.result((stemmer ? Stem(s)).mapTo[StemFinished], timeout.duration).stem
+        val splitted: Array[String] = s.toLowerCase(new Locale("pl")).split("[\\s\\.\\,]+")
+
+        splitted.map(w => {
+          stemmer.getStems(w)
+        }).reduce(_ + " " + _)
+
       })
 
       return Content(title, listOfInfos, links)
