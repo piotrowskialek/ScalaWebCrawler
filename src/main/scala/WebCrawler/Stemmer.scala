@@ -12,7 +12,11 @@ class Stemmer(stemmer: PolishStemmer) {
     .reduce(_ + "/" + _)
     .replaceFirst("/", "")
 
-  def parse(sentence: String) = {
+  def parse(sentence: String): String = {
+
+    sentence match {
+      case "" => ""
+    }
 
     /*tutaj piszemy reguly do filtrowania postow
     np. "Pogoda na rysach jest ostatnio kiepska"
@@ -25,9 +29,10 @@ class Stemmer(stemmer: PolishStemmer) {
      może po prostu kilka wzorców sobie przygotować i dopasowywać zdania do nich, jak spełniają reguły to zapisywać
      jak nie to odrzucać
 
-     do obgadania bo nic innego nie przychodzi mi do głowy
-
     */
+
+
+
   }
 
 }

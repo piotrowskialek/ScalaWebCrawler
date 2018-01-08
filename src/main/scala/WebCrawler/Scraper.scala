@@ -65,14 +65,17 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
         .map(link => new URL(link))
         .toList
 
-      listOfInfos = listOfInfos.map(s => {
-        val splitted: Array[String] = s.toLowerCase(new Locale("pl")).split("[\\s\\.\\,]+")
+      listOfInfos = listOfInfos
+        .flatMap(s => s.toLowerCase(new Locale("pl")).split("[\\.\\;]+").toList)
+        .filter(s => s.contains(keyWord))
+//        .map(s => {
+//          s.split(" ")
+//            .map(w => stemmer.getStems(w))
+//            .reduce(_ + " " + _)
+//        })
+      //lista zdan ze slowem kluczowym
 
-        splitted.map(w => {
-          stemmer.getStems(w)
-        }).reduce(_ + " " + _)
-
-      })
+      //dorobic podstawianie do reguł
 
       return Content(title, listOfInfos, links)
     } else {

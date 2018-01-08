@@ -15,7 +15,7 @@ import scala.language.postfixOps
 object Main extends App {
 
 //  val stemmer = new PolishStemmer
-
+//
 //  val in = "Nie zabrakło oczywiście wpadek. " +
 //    "Największym zaskoczeniem okazał się dla nas strój Katarzyny Zielińskiej, " +
 //    "której ewidentnie o coś chodziło, " +
@@ -34,7 +34,7 @@ object Main extends App {
 //        )
 //    println()
 //  }
-
+//
 //  val stemm = new PolishStemmer
 //  val xD = stemm.lookup("białołęka")
 //  val res = stemm.lookup("białołęka").get(0).getStem
@@ -43,7 +43,7 @@ object Main extends App {
 
   val system = ActorSystem()
   val keyWord: String = args(0)
-  val supervisor = system.actorOf(Props(new Supervisor(system, keyWord)))
+  val supervisor = system.actorOf(Props(new Supervisor(system, keyWord.toLowerCase)))
 
   supervisor ! Start(new URL("http://forum.turystyka-gorska.pl/index.php"))
 
