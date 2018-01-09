@@ -9,7 +9,7 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) {
 
   def getTags(word: String): String = stemmer.lookup(word).asScala
     .map(wd => wd.getTag.toString)
-    .+:("")
+    .+:("")//reduce nie dziala na pustej liscie, musi byc co najmniej jeden element
     .reduce(_ + "/" + _)
     .replaceFirst("/", "")
 
@@ -24,6 +24,10 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) {
   def keywordPredicate(sentence: String): Boolean = {
 
     val stemmedSentence: Map[String, String] = parse(sentence)
+
+//    stemmedSentence match {
+//      case Map("" -> "") => ""
+//    }
 
     true
     //wyciagnij wnioski z tego zdania, jezeli pasuje do wzorca,
