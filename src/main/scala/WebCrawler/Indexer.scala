@@ -16,7 +16,7 @@ class Indexer(supervisor: ActorRef, repository: ActorRef) extends Actor {
     case Index(url, content) =>
       println(s"indexing page $url")
       indexedPages += (url -> content)
-      for (info <- content.attributes)
+      for (info <- content.listOfSentences)
         repository ! Persist(url, info)
       //        Await.result((repository ? Persist(url, info)).mapTo[PersistFinished], timeout.duration)
 
@@ -24,7 +24,7 @@ class Indexer(supervisor: ActorRef, repository: ActorRef) extends Actor {
   }
 
   @throws[Exception](classOf[Exception])
-  override def postStop(): Unit = { //zastanowic sie czy moze trzymac wsio w ramie i po stopie persist
+  override def postStop(): Unit = {
     super.postStop()
     indexedPages.foreach(println)
     println(indexedPages.size)

@@ -18,7 +18,7 @@ import scala.collection.JavaConverters._
 class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
 
   val urlValidator = new UrlValidator()
-  val stemmer = new Stemmer(new PolishStemmer)
+  val stemmer = new Stemmer(new PolishStemmer, keyWord)
 
   def receive: Receive = {
     case Scrap(url: URL) =>
@@ -68,12 +68,10 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
       listOfInfos = listOfInfos
         .flatMap(s => s.toLowerCase(new Locale("pl")).split("[\\.\\;]+").toList)
         .filter(s => s.contains(keyWord))
-//        .map(s => {
-//          s.split(" ")
-//            .map(w => stemmer.getStems(w))
-//            .reduce(_ + " " + _)
-//        })
+        .filter(s => stemmer.keywordPredicate(s))
       //lista zdan ze slowem kluczowym
+
+
 
       //dorobic podstawianie do reguł
 

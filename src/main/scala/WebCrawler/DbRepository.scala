@@ -3,7 +3,6 @@ package WebCrawler
 import java.net.URL
 
 import akka.actor.Actor
-import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.{MongoClient, MongoCollection, MongoDB}
 
@@ -20,33 +19,10 @@ class DbRepository() extends Actor {
   def receive: Receive = {
     case Persist(url: URL, info) =>
 
-      println(s"Persist: $url")
-
-      val findQuery = url.toString.replace(".", ";") $exists true
-      val result: MongoCursor = collection.find(findQuery)
-      if (result.size == 0) { //brak takiego urla
-
-        val insertDocument = MongoDBObject(url.toString.replace(".", ";") -> List[String](info))
-        collection.insert(insertDocument)
-        println(s"Saving: $url and $info")
-
-      } else {  //istnieje taki url, dopisanie do listy
-
-        val parsedInfos: AnyRef = result.one().get(url.toString.replace(".", ";"))
-
-        var infos: List[Any] = parsedInfos match {
-          case list: BasicDBList => list.toList
-          case _ => throw new ClassCastException
-        }
-        if (!infos.contains(info)) {  //jezeli juz jest taki post
-          infos = info :: infos
-          val updateDocument = MongoDBObject(url.toString.replace(".", ";") -> infos)
-          collection.update(findQuery, updateDocument)
-          println(s"Saving: $url and $info")
-        }
-
-      }
-
+      val insertDocument = MongoDBObject("url" -> url.toString.replace(".", ";"))
+      insertDocument.put("infos", List[String](info))
+      collection.insert(insertDocument)
+      println(s"Saving: $url and $info")
       sender() ! PersistFinished(url)
   }
 }
