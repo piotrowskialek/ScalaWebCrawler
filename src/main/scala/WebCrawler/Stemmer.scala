@@ -33,7 +33,7 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) {
 
   def keywordPredicate(sentence: String): Boolean = {
 
-    val stemmedSentence: Map[String, String] = parse(sentence)  //todo: miesza kolejnosc naprawic
+    val stemmedSentence: Map[String, String] = parse(sentence)
 
 //    val setOfWordsPatterns: Set[Array[String]] = setOfStringPatterns.map(s => s.split(" "))
 
