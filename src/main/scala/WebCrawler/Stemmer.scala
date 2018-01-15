@@ -3,7 +3,7 @@ package WebCrawler
 import morfologik.stemming.polish.PolishStemmer
 
 import scala.collection.JavaConverters._
-import scala.collection.breakOut
+import scala.collection.immutable.ListMap
 
 class Stemmer(stemmer: PolishStemmer, keyword: String) {
 
@@ -12,6 +12,7 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) {
   "",
   "",
   "")
+    .map(s => s.replace("X", keyword))
 
   def getTags(word: String): String = stemmer.lookup(word).asScala
     .map(wd => wd.getTag.toString)
@@ -21,16 +22,22 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) {
 
   def parse(sentence: String): Map[String, String] = {
 
-    val words = sentence.split(" ")
-    val tags = words.map(w => getTags(w))
-    val stemmedSentence: Map[String, String] = (words zip tags)(breakOut)
+    val words: Array[String] = sentence.split(" ")
+    val tags: Array[String] = words.map(w => getTags(w))
+    val tuples: Array[(String, String)] = words zip tags
+//    val stemmedSentence: Map[String, String] = (words zip tags) toMap
+    val stemmedSentence: ListMap[String, String] = ListMap(tuples: _*)
+    //    val stemmedSentence2: Map[String, String] = (words zip tags)(breakOut) //magia ze zwracaniem, bez tego sie nie kompiluje
     return stemmedSentence
   }
 
   def keywordPredicate(sentence: String): Boolean = {
 
-    val stemmedSentence: Map[String, String] = parse(sentence)
-    val tagsOfPartsOfSpeech: Set[List[String]] = setOfStringPatterns.map(s => s.replace("X",keyword).split(" ").toList.map(w => getTags(w).split(":")(0)))
+    val stemmedSentence: Map[String, String] = parse(sentence)  //todo: miesza kolejnosc naprawic
+
+//    val setOfWordsPatterns: Set[Array[String]] = setOfStringPatterns.map(s => s.split(" "))
+
+    val tagsOfPartsOfSpeech: Set[List[String]] = setOfStringPatterns.map(s => s.split(" ").toList.map(w => getTags(w).split(":")(0)))
 
     tagsOfPartsOfSpeech.map(pattern => {
       val stringOfTags = pattern.+:(" ").reduce(_ + " " + _)
