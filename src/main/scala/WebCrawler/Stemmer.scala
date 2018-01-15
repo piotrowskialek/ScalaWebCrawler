@@ -7,6 +7,12 @@ import scala.collection.breakOut
 
 class Stemmer(stemmer: PolishStemmer, keyword: String) {
 
+  val setOfStringPatterns: Set[String] = Set("Pogoda na X jest kiepska",
+    "Wczoraj na X byla kiepska pogoda",
+  "",
+  "",
+  "")
+
   def getTags(word: String): String = stemmer.lookup(word).asScala
     .map(wd => wd.getTag.toString)
     .+:("")//reduce nie dziala na pustej liscie, musi byc co najmniej jeden element
@@ -24,12 +30,17 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) {
   def keywordPredicate(sentence: String): Boolean = {
 
     val stemmedSentence: Map[String, String] = parse(sentence)
+    val tagsOfPartsOfSpeech: Set[List[String]] = setOfStringPatterns.map(s => s.replace("X",keyword).split(" ").toList.map(w => getTags(w).split(":")(0)))
 
-//    stemmedSentence match {
-//      case Map("" -> "") => ""
-//    }
+    tagsOfPartsOfSpeech.map(pattern => {
+      val stringOfTags = pattern.+:(" ").reduce(_ + " " + _)
+      stemmedSentence.values.toList match {
+        case some :: `stringOfTags` :: rest => true
+        case _ => false
+      }
+    }).exists(b => b)
+    //przetestowac xD
 
-    true
     //wyciagnij wnioski z tego zdania, jezeli pasuje do wzorca,
     // zwroc i wyslij w Content, jezeli nie, wyslij pusta liste bo indexer i tak nie zapisze tego do bazy
 
@@ -47,6 +58,7 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) {
     */
 
   }
+
 
 
 }
