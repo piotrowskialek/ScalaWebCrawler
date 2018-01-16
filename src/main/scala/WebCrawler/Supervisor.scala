@@ -14,7 +14,7 @@ class Supervisor(system: ActorSystem, keyWord: String) extends Actor {
   val dbRepository: ActorRef = context actorOf Props(new DbRepository())
   val indexer: ActorRef = context actorOf Props(new Indexer(self, dbRepository))
 
-  val maxPages = 5000
+  val maxPages = 50000
   val maxRetries = 2
 
   var numVisited = 0

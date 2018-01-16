@@ -68,12 +68,8 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
       listOfInfos = listOfInfos
         .flatMap(s => s.toLowerCase(new Locale("pl")).split("[\\.\\;]+").toList)
         .filter(s => s.contains(keyWord))
-        .filter(s => stemmer.keywordPredicate(s))
+        .filter(s => stemmer.keywordPredicate(s)) //sprawdzanie regul
       //lista zdan ze slowem kluczowym
-
-
-
-      //dorobic podstawianie do reguł
 
       return Content(title, listOfInfos, links)
     } else {

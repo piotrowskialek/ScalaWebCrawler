@@ -7,12 +7,13 @@ import scala.collection.immutable.ListMap
 
 class Stemmer(stemmer: PolishStemmer, keyword: String) {
 
-  val setOfStringPatterns: Set[String] = Set("Pogoda na X jest kiepska",
-    "Wczoraj na X byla kiepska pogoda",
-  "",
-  "",
-  "")
-    .map(s => s.replace("X", keyword))
+  val setOfStringPatterns: Set[String] =
+    Set("Pogoda na X jest kiepska",
+    "Wczoraj na X była kiepska pogoda",
+    "Nie warto teraz wchodzć na X",
+    "Na X ostatnio była kiepska pogoda",
+    "W drodze na X była kiepska pogoda")
+    .map(s => s.replace("X", keyword))  //dla wygody
 
   def getTags(word: String): String = stemmer.lookup(word).asScala
     .map(wd => wd.getTag.toString)
@@ -25,28 +26,23 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) {
     val words: Array[String] = sentence.split(" ")
     val tags: Array[String] = words.map(w => getTags(w))
     val tuples: Array[(String, String)] = words zip tags
-//    val stemmedSentence: Map[String, String] = (words zip tags) toMap
     val stemmedSentence: ListMap[String, String] = ListMap(tuples: _*)
-    //    val stemmedSentence2: Map[String, String] = (words zip tags)(breakOut) //magia ze zwracaniem, bez tego sie nie kompiluje
     return stemmedSentence
   }
 
   def keywordPredicate(sentence: String): Boolean = {
 
     val stemmedSentence: Map[String, String] = parse(sentence)
-
-//    val setOfWordsPatterns: Set[Array[String]] = setOfStringPatterns.map(s => s.split(" "))
-
     val tagsOfPartsOfSpeech: Set[List[String]] = setOfStringPatterns.map(s => s.split(" ").toList.map(w => getTags(w).split(":")(0)))
 
     tagsOfPartsOfSpeech.map(pattern => {
-      val stringOfTags = pattern.+:(" ").reduce(_ + " " + _)
-      stemmedSentence.values.toList match {
+      val stringOfTags = pattern.+:(" ").reduce(_ + " " + _).replaceFirst(" ", "").replaceFirst(" ", "")//todo: zabezpieczenie przed nullem
+      val listOfTagsOfSentence: List[String] = stemmedSentence.values.map(tag => tag.split(":")(0)).toList
+      listOfTagsOfSentence match {
         case some :: `stringOfTags` :: rest => true
         case _ => false
       }
     }).exists(b => b)
-    //przetestowac xD
 
     //wyciagnij wnioski z tego zdania, jezeli pasuje do wzorca,
     // zwroc i wyslij w Content, jezeli nie, wyslij pusta liste bo indexer i tak nie zapisze tego do bazy
@@ -65,7 +61,5 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) {
     */
 
   }
-
-
 
 }
