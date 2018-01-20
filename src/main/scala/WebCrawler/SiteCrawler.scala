@@ -16,12 +16,10 @@ import scala.language.postfixOps
   */
 class SiteCrawler(supervisor: ActorRef, indexer: ActorRef, keyWord: String) extends Actor {
 
-  val process = "Process next url"
-
   val scraper: ActorRef = context actorOf Props(new Scraper(indexer, keyWord))
 
   implicit val timeout: Timeout = Timeout(3 seconds)
-  val tick: Cancellable = context.system.scheduler.schedule(0 millis, 1000 millis, self, process)
+  val tick: Cancellable = context.system.scheduler.schedule(0 millis, 1000 millis, self, ProcessNextUrl())
   var toProcess: List[URL] = List.empty[URL]
 
   def receive: Receive = {
@@ -29,7 +27,7 @@ class SiteCrawler(supervisor: ActorRef, indexer: ActorRef, keyWord: String) exte
       // wait some time, so we will not spam a website
       println(s"waiting... $url")
       toProcess = url :: toProcess
-    case `process` =>
+    case ProcessNextUrl() =>
       toProcess match {
         case Nil =>
         case url :: list =>

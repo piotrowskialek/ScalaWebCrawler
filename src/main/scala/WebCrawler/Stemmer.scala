@@ -36,29 +36,24 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) {
     val tagsOfPartsOfSpeech: Set[List[String]] = setOfStringPatterns.map(s => s.split(" ").toList.map(w => getTags(w).split(":")(0)))
 
     tagsOfPartsOfSpeech.map(pattern => {
-      val stringOfTags = pattern.+:(" ").reduce(_ + " " + _).replaceFirst(" ", "").replaceFirst(" ", "")//todo: zabezpieczenie przed nullem
-      val listOfTagsOfSentence: List[String] = stemmedSentence.values.map(tag => tag.split(":")(0)).toList
-      listOfTagsOfSentence match {
-        case some :: `stringOfTags` :: rest => true
-        case _ => false
-      }
+
+      var stringOfTags = pattern.+:(" ").reduce(_ + " " + _)//todo: zabezpieczenie przed nullem
+      while (stringOfTags.startsWith(" "))
+        stringOfTags = stringOfTags.replaceFirst(" ","")//todo: trimowanie
+      stringOfTags = stringOfTags.replaceAll("  ", " ")
+
+      val stringOfTagsPattern = stringOfTags
+
+//      val stringOfTagsPattern = pattern.filter(w => w.equals("") || w.replaceAll(" ", "").isEmpty)
+
+
+      val stringOfTagsOfSentence: String = stemmedSentence.values.map(tag => tag.split(":")(0)).toList
+        .filter(w => !w.equals("") || !w.replaceAll(" ", "").isEmpty)
+        .mkString(" ")
+
+      stringOfTagsOfSentence.contains(stringOfTagsPattern)
+
     }).exists(b => b)
-
-    //wyciagnij wnioski z tego zdania, jezeli pasuje do wzorca,
-    // zwroc i wyslij w Content, jezeli nie, wyslij pusta liste bo indexer i tak nie zapisze tego do bazy
-
-    /*tutaj piszemy reguly do filtrowania postow
-    np. "Pogoda na rysach jest ostatnio kiepska"
-     1. Rzeczownik/Podmiot (pogoda, droga, warunki itd.)
-     2. Miejscownik (ze słowem kluczowym)
-     3. Czasownik/Orzeczenie (jest)
-     4. Okolicznik czasu (ostatnio, niedawno, wczoraj)
-     5. Przymiotnik (dobra, zła, kiepska itd.)
-
-     może po prostu kilka wzorców sobie przygotować i dopasowywać zdania do nich, jak spełniają reguły to zapisywać
-     jak nie to odrzucać
-
-    */
 
   }
 

@@ -34,12 +34,13 @@ object Main extends App {
 //        )
 //    println()
 //  }
-//
-//  val stemm = new PolishStemmer
-//  val xD = stemm.lookup("białołęka")
-//  val res = stemm.lookup("białołęka").get(0).getStem
-//  val res2 = stemm.lookup("białołęka").get(0).getTag
-//  val res3 = stemm.lookup("białołęka").get(0).getWord
+
+//  val stemmer = new Stemmer(new PolishStemmer(), "rysy")
+//  println(stemmer.keywordPredicate("Pogoda na rysy jest kiepska"))
+//  println(stemmer.keywordPredicate("xd Pogoda na rysy jest kiepska xd"))
+//  println(stemmer.keywordPredicate("xD Pogoda na rysach jest słaba xD"))
+//  println(stemmer.keywordPredicate("Pogoda na rysach jest kiepska"))
+//  println(stemmer.keywordPredicate("na telefonie mam rysy xD"))
 
   val system = ActorSystem()
   val keyWord: String = args(0)
@@ -47,7 +48,7 @@ object Main extends App {
 
   supervisor ! Start(new URL("http://forum.turystyka-gorska.pl/index.php"))
 
-  Await.result(system.whenTerminated, 20 minutes)
+  Await.result(system.whenTerminated, 5 hours)
 
   supervisor ! PoisonPill
   system.terminate
