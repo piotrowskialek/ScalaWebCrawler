@@ -1,7 +1,8 @@
-*.class
 *.log
 target/.history
 target/scala-2.12/resolution-cache/
 target/streams/
 project/target/*
 .idea/
+graphics/
+target/scala-2.12/classes/

@@ -14,13 +14,13 @@ class Supervisor(system: ActorSystem, keyWord: String) extends Actor {
   val dbRepository: ActorRef = context actorOf Props(new DbRepository())
   val indexer: ActorRef = context actorOf Props(new Indexer(self, dbRepository))
 
-  val maxPages = 50000
-  val maxRetries = 2
+  val maxPages: Int = 50000
+  val maxRetries: Int = 2
 
-  var numVisited = 0
+  var numVisited: Int = 0
   var indexedUrls: Set[URL] = Set.empty
-  var scrapCounts = Map.empty[URL, Int]
-  var hostActorRepository = Map.empty[String, ActorRef]
+  var scrapCounts: Map[URL, Int] = Map.empty
+  var hostActorRepository: Map[String, ActorRef] = Map.empty
   val listOfForbiddenHosts: List[String] = List[String]("google","facebook","twitter") //zastanowic sie czy tak ladnie
 
   def receive: Receive = {
