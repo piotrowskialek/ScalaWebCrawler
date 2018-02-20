@@ -15,5 +15,6 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-testkit" % "2.5.6" % Test,
   "commons-validator" % "commons-validator" % "1.5+"
 )
+libraryDependencies += "com.typesafe.akka" %% "akka-http-core" % "10.0.1"
 
 libraryDependencies += "org.mongodb" %% "casbah" % "3.1.1"

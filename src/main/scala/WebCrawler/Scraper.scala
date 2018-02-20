@@ -43,7 +43,6 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
         .filter(s => s.toLowerCase.contains(keyWord))
         .toList
 
-
       val title: String = doc.getElementsByTag("title").asScala
         .map(e => e.text())
         .head

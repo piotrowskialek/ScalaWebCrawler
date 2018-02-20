@@ -3,10 +3,15 @@ package WebCrawler
 import java.net.URL
 
 import akka.actor.{ActorSystem, PoisonPill, Props}
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
+import akka.stream.ActorMaterializer
 
-import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
+import scala.util.{Failure, Success}
+
 
 /**
   * Created by apiotrowski on 14.10.2017.
@@ -42,7 +47,20 @@ object Main extends App {
 //  println(stemmer.keywordPredicate("Pogoda na rysach jest kiepska"))
 //  println(stemmer.keywordPredicate("na telefonie mam rysy xD"))
 
-  val system = ActorSystem()
+
+
+
+  implicit val system = ActorSystem()//zmienic z implicit
+  implicit val materializer = ActorMaterializer()
+  implicit val executionContext = system.dispatcher
+  val responseFuture: Future[HttpResponse] = Http().singleRequest(HttpRequest(uri = "http://akka.io"))
+  responseFuture
+    .onComplete {
+      case Success(res) => println(res)
+      case Failure(_)   => sys.error("something wrong")
+    }
+
+
   val keyWord: String = args(0)
   val supervisor = system.actorOf(Props(new Supervisor(system, keyWord.toLowerCase)))
 
