@@ -13,8 +13,13 @@ libraryDependencies ++= {
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % "2.5.6",
   "com.typesafe.akka" %% "akka-testkit" % "2.5.6" % Test,
+
   "commons-validator" % "commons-validator" % "1.5+"
+
 )
-libraryDependencies += "com.typesafe.akka" %% "akka-http-core" % "10.0.1"
+
+libraryDependencies += "com.typesafe.akka" %% "akka-http-core" % "10.0.6"
 
 libraryDependencies += "org.mongodb" %% "casbah" % "3.1.1"
+libraryDependencies += "javax.ws.rs" % "javax.ws.rs-api" % "2.0"
+libraryDependencies += "org.glassfish.jersey.core" % "jersey-client" % "2.22.2"
