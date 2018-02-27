@@ -1,17 +1,13 @@
 package WebCrawler
 
-import javax.ws.rs.client._
+import java.net.URL
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse, _}
-import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.stream.ActorMaterializer
-import spray.json.JsonParser
+import akka.actor.{ActorRef, ActorSystem, PoisonPill, Props}
 
-import scala.concurrent.Future
+import scala.concurrent.Await
+import scala.concurrent.duration._
 import scala.language.postfixOps
-import scala.util.{Failure, Success}
+
 
 /**
   * Created by apiotrowski on 14.10.2017.
@@ -47,46 +43,18 @@ object Main extends App {
 //  println(stemmer.keywordPredicate("Pogoda na rysach jest kiepska"))
 //  println(stemmer.keywordPredicate("na telefonie mam rysy xD"))
 
-  val task = "{\"task\":\"all\",\"lexeme\":\"jechać\",\"tool\":\"all\"}"
-  val url = "http://ws.clarin-pl.eu/lexrest/lex/"
 
+  implicit val system: ActorSystem = ActorSystem()
 
+  val keyWord: String = args(0)
+  val supervisor: ActorRef = system.actorOf(Props(new Supervisor(system, keyWord.toLowerCase)))
 
-  implicit val system = ActorSystem() //zmienic z implicit
-  implicit val materializer = ActorMaterializer()
-  implicit val executionContext = system.dispatcher
-  val responseFuture: Future[HttpResponse] = Http().singleRequest(
-    HttpRequest(entity = HttpEntity(task).withContentType(ContentTypes.`application/json`), uri = url, method = HttpMethods.POST))
+  supervisor ! Start(new URL("http://forum.turystyka-gorska.pl/index.php"))
 
+  Await.result(system.whenTerminated, 5 hours)
 
-  responseFuture
-    .onComplete {
-      case Success(res) => println(Unmarshal(res.entity).to[String]
-        .onComplete(f=> println(JsonParser(f.get).asJsObject)))
-      case Failure(_)   => sys.error("something wrong")
-    }
-
-  //  val keyWord: String = args(0)
-  //  val supervisor = system.actorOf(Props(new Supervisor(system, keyWord.toLowerCase)))
-  //
-  //  supervisor ! Start(new URL("http://forum.turystyka-gorska.pl/index.php"))
-  //
-  //  Await.result(system.whenTerminated, 5 hours)
-  //
-  //  supervisor ! PoisonPill
+  supervisor ! PoisonPill
   system.terminate
-
-
-
-
-
-  val client = ClientBuilder.newClient
-  val req = client
-    .target(url)
-    .request
-  val res = req.post(Entity.entity(task, javax.ws.rs.core.MediaType.APPLICATION_JSON)).readEntity(classOf[String])
-
-//  println(JSON.parseFull(res))
 
 
 

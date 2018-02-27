@@ -19,6 +19,7 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
 
   val urlValidator = new UrlValidator()
   val stemmer = new Stemmer(new PolishStemmer, keyWord)
+  val wordnetClient: ActorRef = context actorOf Props(new WordnetClient)
 
   def receive: Receive = {
     case Scrap(url: URL) =>
