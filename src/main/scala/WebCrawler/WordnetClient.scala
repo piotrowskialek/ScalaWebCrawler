@@ -24,8 +24,9 @@ class WordnetClient() extends Actor {
       future.onComplete {
         case Success(res) => Unmarshal(res.entity).to[String]
             .onComplete(f => {
-              JsonParser(f.get).asJsObject
+              JsonParser(f.getOrElse[String]("{}")).asJsObject
             })
+          println(s"Consuming wordnet service with $word done with success")
         case Failure(_) => sys.error("WORDNET CLIENT ERROR")
       }
   }
@@ -40,4 +41,7 @@ class WordnetClient() extends Actor {
         method = HttpMethods.POST))
 
   }
+
+  def parseResult(): Unit = {}
+
 }

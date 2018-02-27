@@ -56,6 +56,4 @@ object Main extends App {
   supervisor ! PoisonPill
   system.terminate
 
-
-
 }
