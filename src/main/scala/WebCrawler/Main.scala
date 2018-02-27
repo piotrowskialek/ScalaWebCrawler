@@ -5,7 +5,9 @@ import javax.ws.rs.client._
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse, _}
+import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
+import spray.json.JsonParser
 
 import scala.concurrent.Future
 import scala.language.postfixOps
@@ -56,12 +58,14 @@ object Main extends App {
   val responseFuture: Future[HttpResponse] = Http().singleRequest(
     HttpRequest(entity = HttpEntity(task).withContentType(ContentTypes.`application/json`), uri = url, method = HttpMethods.POST))
 
+
   responseFuture
     .onComplete {
-      case Success(res) => println(res)
+      case Success(res) => println(Unmarshal(res.entity).to[String]
+        .onComplete(f=> println(JsonParser(f.get).asJsObject)))
       case Failure(_)   => sys.error("something wrong")
     }
-  //  while(true){}
+
   //  val keyWord: String = args(0)
   //  val supervisor = system.actorOf(Props(new Supervisor(system, keyWord.toLowerCase)))
   //
@@ -83,7 +87,6 @@ object Main extends App {
   val res = req.post(Entity.entity(task, javax.ws.rs.core.MediaType.APPLICATION_JSON)).readEntity(classOf[String])
 
 //  println(JSON.parseFull(res))
-
 
 
 

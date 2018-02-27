@@ -11,14 +11,14 @@ libraryDependencies ++= {
 }
 
 libraryDependencies ++= Seq(
-  "com.typesafe.akka" %% "akka-actor" % "2.5.6",
-  "com.typesafe.akka" %% "akka-testkit" % "2.5.6" % Test,
-
-  "commons-validator" % "commons-validator" % "1.5+"
+  "com.typesafe.akka" %% "akka-actor" % "2.5.9",
+  "com.typesafe.akka" %% "akka-testkit" % "2.5.9" % Test,
+  "com.typesafe.akka" %% "akka-stream" % "2.5.9",
+  "commons-validator" % "commons-validator" % "1.5+",
+  "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.0-RC2",
+  "com.typesafe.akka" %% "akka-http-core" % "10.1.0-RC2"
 
 )
-
-libraryDependencies += "com.typesafe.akka" %% "akka-http-core" % "10.0.6"
 
 libraryDependencies += "org.mongodb" %% "casbah" % "3.1.1"
 libraryDependencies += "javax.ws.rs" % "javax.ws.rs-api" % "2.0"
