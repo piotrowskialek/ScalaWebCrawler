@@ -3,6 +3,7 @@ package WebCrawler
 import java.net.URL
 
 import akka.actor.{Actor, Props, _}
+import akka.event.Logging
 import akka.pattern.{ask, pipe}
 import akka.util.Timeout
 
@@ -18,6 +19,8 @@ class SiteCrawler(supervisor: ActorRef, indexer: ActorRef, keyWord: String) exte
 
   val scraper: ActorRef = context actorOf Props(new Scraper(indexer, keyWord))
 
+  val log = Logging(context.system, this)
+
   implicit val timeout: Timeout = Timeout(3 seconds)
   val tick: Cancellable = context.system.scheduler.schedule(0 millis, 1000 millis, self, ProcessNextUrl())
   var toProcess: List[URL] = List.empty[URL]
@@ -25,13 +28,13 @@ class SiteCrawler(supervisor: ActorRef, indexer: ActorRef, keyWord: String) exte
   def receive: Receive = {
     case Scrap(url) =>
       // wait some time, so we will not spam a website
-      println(s"waiting... $url")
+      log.debug(s"waiting... $url")
       toProcess = url :: toProcess
     case ProcessNextUrl() =>
       toProcess match {
         case Nil =>
         case url :: list =>
-          println(s"site scraping... $url")
+          log.debug(s"site scraping... $url")
           toProcess = list
           (scraper ? Scrap(url)).mapTo[ScrapFinished]
             .recoverWith {

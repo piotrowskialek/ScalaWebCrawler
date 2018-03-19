@@ -4,6 +4,7 @@ import java.net.URL
 import java.util.Locale
 
 import akka.actor.{Actor, ActorRef, _}
+import akka.event.Logging
 import morfologik.stemming.polish.PolishStemmer
 import org.apache.commons.validator.routines.UrlValidator
 import org.jsoup.nodes.Document
@@ -21,9 +22,11 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
   val stemmer = new Stemmer(new PolishStemmer, keyWord)
   val wordnetClient: ActorRef = context actorOf Props(new WordnetClient)
 
+  val log = Logging(context.system, this)
+
   def receive: Receive = {
     case Scrap(url: URL) =>
-      println(s"scraping $url")
+      log.debug(s"scraping $url")
       val content: Content = parse(url)
       sender() ! ScrapFinished(url)
       indexer ! Index(url, content)
@@ -65,7 +68,7 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
         .toList
 
       listOfInfos = listOfInfos
-        .flatMap(s => s.toLowerCase(new Locale("pl")).split("[\\.\\;]+").toList)
+        .flatMap(s => s.toLowerCase(new Locale("pl")).split("[\\.\\;]+").toList)//todo
         .filter(s => s.contains(keyWord))
         .filter(s => stemmer.keywordPredicate(s)) //sprawdzanie regul
       //lista zdan ze slowem kluczowym
