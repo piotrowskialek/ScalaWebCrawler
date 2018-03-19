@@ -26,15 +26,14 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
   var listOfInfos: List[String] = List()
   var title: String = ""
   var links: List[URL] = List()
-  var url: URL = new URL("")
+  var url: URL = _
 
   val log = Logging(context.system, this)
 
   def receive: Receive = {
     case Scrap(url: URL) =>
-      log.debug(s"scraping $url")
-      val content: Content = parse(url)
-      println(s"scraping $url")
+      log.info(s"scraping $url")
+//      val content: Content = parse(url)
       this.url = url
 //      val content: Content = parse(url)
       parse(url)
@@ -85,9 +84,9 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
         .flatMap(s => s.toLowerCase(new Locale("pl")).split("[\\.\\;]+").toList)
         .filter(s => s.contains(keyWord))
 
-      stemmer ! Stem(listOfInfos)
+       stemmer ! Stem(listOfInfos)
 
-//        .filter(s => stemmer.keywordPredicate(s)) //sprawdzanie regul
+      //        .filter(s => stemmer.keywordPredicate(s)) //sprawdzanie regul
 
 
 
@@ -95,7 +94,6 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
 
 //      return Content(title, listOfInfos, links)
     } else {
-      listOfInfos = List()
 //      return Content(link, List(), List()) //jezeli nie html tylko jakis obrazek to pusty kontent
     }
   }

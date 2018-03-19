@@ -21,7 +21,7 @@ class SiteCrawler(supervisor: ActorRef, indexer: ActorRef, keyWord: String) exte
 
   val log = Logging(context.system, this)
 
-  implicit val timeout: Timeout = Timeout(3 seconds)
+  implicit val timeout: Timeout = Timeout(600 seconds)
   val tick: Cancellable = context.system.scheduler.schedule(0 millis, 1000 millis, self, ProcessNextUrl())
   var toProcess: List[URL] = List.empty[URL]
 

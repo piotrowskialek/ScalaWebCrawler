@@ -1,6 +1,7 @@
 package WebCrawler
 
 import akka.actor.Actor
+import akka.event.Logging
 import morfologik.stemming.polish.PolishStemmer
 
 import scala.collection.JavaConverters._
@@ -8,10 +9,13 @@ import scala.collection.immutable.ListMap
 
 class Stemmer(stemmer: PolishStemmer, keyword: String) extends Actor {
 
+  val log = Logging(context.system, this)
+
   override def receive: Receive = {
     case Stem(sentences) =>
       val results = sentences zip sentences.map(sentence => keywordPredicate(sentence))
       val resultsToSend = ListMap(results: _*)
+      log.info(s"stemming: $sentences finished")
       sender() ! StemFinished(resultsToSend)
   }
 
