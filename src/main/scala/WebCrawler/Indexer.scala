@@ -3,6 +3,7 @@ package WebCrawler
 import java.net.URL
 
 import akka.actor.{Actor, ActorRef, _}
+import akka.event.Logging
 
 
 /**
@@ -12,9 +13,11 @@ class Indexer(supervisor: ActorRef, repository: ActorRef) extends Actor {
 
   var indexedPages = Map.empty[URL, Content]
 
+  val log = Logging(context.system, this)
+
   def receive: Receive = {
     case Index(url, content) =>
-      println(s"indexing page $url")
+      log.debug(s"indexing page $url")
       indexedPages += (url -> content)
       for (info <- content.listOfSentences)
         repository ! Persist(url, info)

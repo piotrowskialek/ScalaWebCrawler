@@ -4,6 +4,7 @@ import java.net.URL
 import java.util.Locale
 
 import akka.actor.{Actor, ActorRef, _}
+import akka.event.Logging
 import morfologik.stemming.polish.PolishStemmer
 import org.apache.commons.validator.routines.UrlValidator
 import org.jsoup.nodes.Document
@@ -27,8 +28,12 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
   var links: List[URL] = List()
   var url: URL = new URL("")
 
+  val log = Logging(context.system, this)
+
   def receive: Receive = {
     case Scrap(url: URL) =>
+      log.debug(s"scraping $url")
+      val content: Content = parse(url)
       println(s"scraping $url")
       this.url = url
 //      val content: Content = parse(url)

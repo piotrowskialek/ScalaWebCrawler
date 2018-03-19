@@ -3,6 +3,7 @@ package WebCrawler
 import java.net.URL
 
 import akka.actor.{Actor, ActorSystem, Props, _}
+import akka.event.Logging
 
 import scala.language.postfixOps
 
@@ -13,6 +14,8 @@ class Supervisor(system: ActorSystem, keyWord: String) extends Actor {
 
   val dbRepository: ActorRef = context actorOf Props(new DbRepository())
   val indexer: ActorRef = context actorOf Props(new Indexer(self, dbRepository))
+
+  val log = Logging(context.system, this)
 
   val maxPages: Int = 50000
   val maxRetries: Int = 2
@@ -25,10 +28,10 @@ class Supervisor(system: ActorSystem, keyWord: String) extends Actor {
 
   def receive: Receive = {
     case Start(url) =>
-      println(s"starting $url")
+      log.info(s"starting $url")
       scrap(url)
     case ScrapFinished(url) =>
-      println(s"scraping finished $url")
+      log.info(s"scraping finished $url")
     case IndexFinished(url, urls) =>
       if (numVisited < maxPages)
         urls.toSet
@@ -40,7 +43,7 @@ class Supervisor(system: ActorSystem, keyWord: String) extends Actor {
       checkAndShutdown(url)
     case ScrapFailure(url, reason) =>
       val retries: Int = scrapCounts(url)
-      println(s"scraping failed $url, $retries, reason = $reason")
+      log.error(s"scraping failed $url, $retries, reason = $reason")
       if (retries < maxRetries) {
         countVisits(url)
         hostActorRepository(url.getHost) ! Scrap(url)
@@ -59,7 +62,7 @@ class Supervisor(system: ActorSystem, keyWord: String) extends Actor {
 
   def scrap(url: URL): Unit = {
     val host = url.getHost
-    println(s"host = $host")
+    log.debug(s"host = $host")
     if (!host.isEmpty) {
       val siteCrawler = hostActorRepository.getOrElse(host, {
         val newSiteCrawler = system actorOf Props(new SiteCrawler(self, indexer, keyWord))

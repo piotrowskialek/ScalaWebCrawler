@@ -3,6 +3,7 @@ package WebCrawler
 import java.net.URL
 
 import akka.actor.Actor
+import akka.event.Logging
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.{MongoClient, MongoCollection, MongoCursor, MongoDB}
 
@@ -12,6 +13,7 @@ import com.mongodb.casbah.{MongoClient, MongoCollection, MongoCursor, MongoDB}
   */
 class DbRepository() extends Actor {
 
+  val log = Logging(context.system, this)
   val mongoClient: MongoClient = MongoClient("localhost", 27017)
   val db: MongoDB = mongoClient("web_crawler")
   val collection: MongoCollection = db("site_data")
@@ -25,10 +27,10 @@ class DbRepository() extends Actor {
 
       if (select.size == 0) {
         collection.insert(insertDocument)
-        println(s"Saving: $url and $info")
+        log.info(s"Saving: $url and $info")
       }
       else {
-        println(s"$info already saved.")
+        log.info(s"$info already saved.")
       }
 
       sender() ! PersistFinished(url)
