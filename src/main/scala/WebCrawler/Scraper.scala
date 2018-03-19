@@ -18,18 +18,30 @@ import scala.collection.JavaConverters._
 class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
 
   val urlValidator = new UrlValidator()
-  val stemmer = new Stemmer(new PolishStemmer, keyWord)
+//  val stemmer = new Stemmer(new PolishStemmer, keyWord)
+  val stemmer: ActorRef = context actorOf Props(new Stemmer(new PolishStemmer, keyWord))
   val wordnetClient: ActorRef = context actorOf Props(new WordnetClient)
+
+  var listOfInfos: List[String] = List()
+  var title: String = ""
+  var links: List[URL] = List()
+  var url: URL = new URL("")
 
   def receive: Receive = {
     case Scrap(url: URL) =>
       println(s"scraping $url")
-      val content: Content = parse(url)
+      this.url = url
+//      val content: Content = parse(url)
+      parse(url)
+    case StemFinished(results) =>
+      val sentencesToPersist: List[String] = results.filter(_._2).keys.toList
+      val content: Content = Content(title, sentencesToPersist, links)
       sender() ! ScrapFinished(url)
       indexer ! Index(url, content)
+
   }
 
-  def parse(url: URL): Content = {
+  def parse(url: URL) = {
     val link: String = url.toString
     val response: Connection.Response = Jsoup.connect(link).ignoreContentType(true)
       .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1").execute()
@@ -38,16 +50,16 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
 
       val doc: Document = response.parse()
 
-      var listOfInfos: List[String] = doc.getElementsByClass("postbody").asScala
+      listOfInfos = doc.getElementsByClass("postbody").asScala
         .map(e => e.text())
         .filter(s => s.toLowerCase.contains(keyWord))
         .toList
 
-      val title: String = doc.getElementsByTag("title").asScala
+      title = doc.getElementsByTag("title").asScala
         .map(e => e.text())
         .head
 
-      val links: List[URL] = doc.getElementsByTag("a").asScala
+      links = doc.getElementsByTag("a").asScala
         .map(u => {
           if (u.attr("href").startsWith("."))
             url.getHost + u.attr("href").substring(1)
@@ -67,12 +79,19 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
       listOfInfos = listOfInfos
         .flatMap(s => s.toLowerCase(new Locale("pl")).split("[\\.\\;]+").toList)
         .filter(s => s.contains(keyWord))
-        .filter(s => stemmer.keywordPredicate(s)) //sprawdzanie regul
+
+      stemmer ! Stem(listOfInfos)
+
+//        .filter(s => stemmer.keywordPredicate(s)) //sprawdzanie regul
+
+
+
       //lista zdan ze slowem kluczowym
 
-      return Content(title, listOfInfos, links)
+//      return Content(title, listOfInfos, links)
     } else {
-      return Content(link, List(), List()) //jezeli nie html tylko jakis obrazek to pusty kontent
+      listOfInfos = List()
+//      return Content(link, List(), List()) //jezeli nie html tylko jakis obrazek to pusty kontent
     }
   }
 }

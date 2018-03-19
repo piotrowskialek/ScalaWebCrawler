@@ -1,18 +1,27 @@
 package WebCrawler
 
+import akka.actor.Actor
 import morfologik.stemming.polish.PolishStemmer
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.ListMap
 
-class Stemmer(stemmer: PolishStemmer, keyword: String) {
+class Stemmer(stemmer: PolishStemmer, keyword: String) extends Actor {
+
+  override def receive: Receive = {
+    case Stem(sentences) =>
+      val results = sentences zip sentences.map(sentence => keywordPredicate(sentence))
+      val resultsToSend = ListMap(results: _*)
+      sender() ! StemFinished(resultsToSend)
+  }
+
 
   val setOfStringPatterns: Set[String] =
-    Set("Pogoda na X jest kiepska",
-    "Wczoraj na X była kiepska pogoda",
-    "Nie warto teraz wchodzć na X",
-    "Na X ostatnio była kiepska pogoda",
-    "W drodze na X była kiepska pogoda")
+  Set("Pogoda na X jest kiepska",
+  "Wczoraj na X była kiepska pogoda",
+  "Nie warto teraz wchodzć na X",
+  "Na X ostatnio była kiepska pogoda",
+  "W drodze na X była kiepska pogoda")
     .map(s => s.replace("X", keyword))  //dla wygody
 
   def getTags(word: String): String = stemmer.lookup(word).asScala
@@ -39,12 +48,12 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) {
 
       var stringOfTags = pattern.+:(" ").reduce(_ + " " + _)//todo: zabezpieczenie przed nullem
       while (stringOfTags.startsWith(" "))
-        stringOfTags = stringOfTags.replaceFirst(" ","")//todo: trimowanie
+      stringOfTags = stringOfTags.replaceFirst(" ","")//todo: trimowanie
       stringOfTags = stringOfTags.replaceAll("  ", " ")
 
       val stringOfTagsPattern = stringOfTags
 
-//      val stringOfTagsPattern = pattern.filter(w => w.equals("") || w.replaceAll(" ", "").isEmpty)
+      //      val stringOfTagsPattern = pattern.filter(w => w.equals("") || w.replaceAll(" ", "").isEmpty)
 
 
       val stringOfTagsOfSentence: String = stemmedSentence.values.map(tag => tag.split(":")(0)).toList
