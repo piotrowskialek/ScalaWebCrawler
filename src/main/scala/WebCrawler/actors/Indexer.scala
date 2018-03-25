@@ -1,7 +1,8 @@
-package WebCrawler
+package WebCrawler.actors
 
 import java.net.URL
 
+import WebCrawler.{Content, Index, IndexFinished, Persist}
 import akka.actor.{Actor, ActorRef, _}
 import akka.event.Logging
 

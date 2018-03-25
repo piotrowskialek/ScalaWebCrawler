@@ -1,7 +1,6 @@
-package WebCrawler
+package WebCrawler.actors
 
-import akka.actor.{Actor, ActorSystem}
-import akka.event.Logging
+import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.Unmarshal
@@ -11,27 +10,23 @@ import spray.json.JsonParser
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
-class WordnetClient() extends Actor {
-
-  implicit val system: ActorSystem = context.system
-  implicit val materializer: ActorMaterializer = ActorMaterializer()
-  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
-
-  val log = Logging(context.system, this)
+class WordnetClient(implicit val system: ActorSystem, implicit val materializer: ActorMaterializer, implicit val executionContext: ExecutionContextExecutor) {
 
   val WORDNET_URL = "http://ws.clarin-pl.eu/lexrest/lex/"
   val DATA_PATTERN = "{\"task\":\"all\",\"lexeme\":\"REPLACE\",\"tool\":\"all\"}"
 
-  def receive: Receive = {
-    case SendWordnetReq(word) => val future: Future[HttpResponse] = sendWordnetReq(word)
+  def parse(word: String): Boolean = {
+    val future: Future[HttpResponse] = sendWordnetReq(word)
       future.onComplete {
         case Success(res) => Unmarshal(res.entity).to[String]
             .onComplete(f => {
-              JsonParser(f.getOrElse[String]("{}")).asJsObject
+              val result = JsonParser(f.getOrElse[String]("{}")).asJsObject
+              println(result)
             })
-          log.debug(s"Consuming wordnet service with $word done with success")
-        case Failure(_) => log.error("WORDNET CLIENT ERROR")
+          println(s"Consuming wordnet service with $word done with success")
+        case Failure(_) => println("WORDNET CLIENT ERROR")
       }
+    true
   }
 
 

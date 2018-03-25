@@ -1,7 +1,8 @@
-package WebCrawler
+package WebCrawler.actors
 
 import java.net.URL
 
+import WebCrawler.{Persist, PersistFinished}
 import akka.actor.Actor
 import akka.event.Logging
 import com.mongodb.casbah.commons.MongoDBObject

@@ -1,7 +1,8 @@
-package WebCrawler
+package WebCrawler.actors
 
 import java.net.URL
 
+import WebCrawler.{ProcessNextUrl, Scrap, ScrapFailure, ScrapFinished}
 import akka.actor.{Actor, Props, _}
 import akka.event.Logging
 import akka.pattern.{ask, pipe}
