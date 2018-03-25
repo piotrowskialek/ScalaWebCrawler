@@ -3,10 +3,10 @@ package WebCrawler.actors
 import java.net.URL
 import java.util.Locale
 
-import WebCrawler.model.Stemmer
+import WebCrawler.model.{Stemmer, WordnetClient}
 import WebCrawler.{Content, Index, Scrap, ScrapFinished}
 import akka.actor.{Actor, ActorRef, _}
-import akka.event.Logging
+import akka.event.{Logging, LoggingAdapter}
 import akka.stream.ActorMaterializer
 import morfologik.stemming.polish.PolishStemmer
 import org.apache.commons.validator.routines.UrlValidator
@@ -26,11 +26,12 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
-  val urlValidator = new UrlValidator()
-  val stemmer = new Stemmer(new PolishStemmer, keyWord)
-  val wordnetClient = new WordnetClient
+  val log: LoggingAdapter = Logging(context.system, this)
 
-  val log = Logging(context.system, this)
+  val urlValidator = new UrlValidator()
+
+  val stemmer = new Stemmer(new PolishStemmer, keyWord)
+  val wordnetClient = new WordnetClient(log)
 
   def receive: Receive = {
     case Scrap(url: URL) =>
@@ -78,10 +79,7 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
       listOfInfos = listOfInfos
         .flatMap(s => s.toLowerCase(new Locale("pl")).split("[\\.\\;]+").toList)//todo
         .filter(s => s.contains(keyWord))
-        .filter(s => stemmer.keywordPredicate(s)
-          || s.split(" ")
-              .map(wordnetClient.parse)
-              .reduce(_ && _)) //zle, todo: poprawic na asynchronicznosc w wordnet
+        .filter(s => stemmer.keywordPredicate(s))
       //sprawdzanie regul
       //lista zdan ze slowem kluczowym
 
