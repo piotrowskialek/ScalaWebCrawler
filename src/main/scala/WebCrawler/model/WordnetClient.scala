@@ -48,8 +48,10 @@ class WordnetClient(log: LoggingAdapter) {
       .toString)
 
     senseJSON match {
+      case Some(Nil) =>
+        return List(("null","null","null"))
       case Some(list: List[Map[String, Any]]) =>
-        val emotionLink = EMOTION_API_URL + list.head("sense_id")
+        val emotionLink = EMOTION_API_URL + Option.apply(list.head("sense_id")).getOrElse()
         val emotionResponse = Jsoup.connect(emotionLink)
           .timeout(MAX_TIMEOUT_MILIS)
           .header(REFERER_HEADER_KEY, REFERER_HEADER_VAL).ignoreContentType(true)
@@ -101,9 +103,10 @@ class WordnetClient(log: LoggingAdapter) {
 
     val maxValue = List(numberOfNeutrals, numberOfNegatives, numberOfPositives).reduceLeft(math.max)
     maxValue match {
-      case `numberOfNegatives` => return Markedness.POSITIVE
-      case `numberOfPositives` => return Markedness.NEGATIVE
+      case `numberOfNegatives` => return Markedness.NEGATIVE
+      case `numberOfPositives` => return Markedness.POSITIVE
       case `numberOfNeutrals` => List(numberOfNegatives, numberOfPositives).reduceLeft(math.max) match {
+        case 0 => return Markedness.NEUTRAL
         case `numberOfPositives` => return Markedness.POSITIVE
         case `numberOfNegatives` => return Markedness.NEGATIVE
         case _ =>

@@ -17,7 +17,7 @@ import scala.language.postfixOps
 
 object Main extends App {
 
-  //  val stemmer = new PolishStemmer
+//  val stemmer = new PolishStemmer
 //
 //  val in = "Nie zabrakło oczywiście wpadek. " +
 //    "Największym zaskoczeniem okazał się dla nas strój Katarzyny Zielińskiej, " +
@@ -47,6 +47,8 @@ object Main extends App {
 
   val testClient = new WordnetClient(null)
   println(testClient.valuateEmotions("Ten samochód jest kiepski".split(" ").toList))
+  println(testClient.valuateEmotions("Ten samochód jest świetny".split(" ").toList))
+
 
   implicit val system: ActorSystem = ActorSystem()
 
