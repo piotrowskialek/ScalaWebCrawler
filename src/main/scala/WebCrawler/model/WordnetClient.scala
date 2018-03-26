@@ -24,6 +24,11 @@ class WordnetClient(log: LoggingAdapter) {
   val EMOTIONS: String = "emotions"
   val MARKEDNESS: String = "markedness"
 
+  object Markedness extends Enumeration {
+    type Markedness = Value
+    val POSITIVE, NEGATIVE, NEUTRAL = Value
+  }
+
   def getEmotions(word: String): List[(String,String,String)] = {
 
     val wordnetApiLink = WORDNET_API_URL + word
@@ -60,22 +65,52 @@ class WordnetClient(log: LoggingAdapter) {
           .toString)
 
         emotionJSON match {
+          case Some(Nil) =>
+            return List(("null","null","null"))
           case Some(list: List[Map[String, Any]]) =>
-            val listOfEmotions: List[(String, String, String)] = list.map(map => (map(VALUATIONS).toString,
-              map(MARKEDNESS).toString, map(EMOTIONS).toString))
-            listOfEmotions
+            val listOfEmotions: List[(String, String, String)] = list.map(map =>
+              (Option.apply(map(VALUATIONS)).getOrElse("null").toString,
+                Option.apply(map(MARKEDNESS)).getOrElse("null").toString,
+                  Option.apply(map(EMOTIONS)).getOrElse("null").toString))
+//            log.info("emotion and sense parsing complete")
+            return listOfEmotions
           case _ =>
-            log.error("emotion parsing error")
-            List(("","",""))
+//            log.error("emotion parsing error")
+            return List(("null","null","null"))
         }
-      case _ => log.error("sense id parsing error")
-        List(("","",""))
+      case _ =>
+//        log.error("sense id parsing error")
+        return List(("null","null","null"))
     }
 
   }
 
-  def valuateEmotions(sentence: List[String]) = {
+  def valuateEmotions(sentence: List[String]): Markedness.Value = {
     val listOfEmotions: List[(String, List[(String, String, String)])] = sentence.map(word => (word, getEmotions(word)))
+    val reducedListOfEmotions: List[(String, (String, String, String))] = listOfEmotions.map(emotionTuple =>
+      (emotionTuple._1, emotionTuple._2.reduce((a, b) =>
+        (a._1 + ";" + b._1, a._2 + ";" + b._2, a._3 + ";" + b._3))))
+      //change no markedness to null
+
+    val flatMapOfMarkedness: List[String] = reducedListOfEmotions
+      .flatMap(_._2._2.split(";").toList)
+
+    val numberOfNeutrals: Int = flatMapOfMarkedness.count(_.equals("null"))
+    val numberOfNegatives: Int = flatMapOfMarkedness.count(_.contains("-")) //todo: add valuating strong or weak
+    val numberOfPositives: Int = flatMapOfMarkedness.count(_.contains("+"))
+
+    val maxValue = List(numberOfNeutrals, numberOfNegatives, numberOfPositives).reduceLeft(math.max)
+    maxValue match {
+      case `numberOfNegatives` => return Markedness.POSITIVE
+      case `numberOfPositives` => return Markedness.NEGATIVE
+      case `numberOfNeutrals` => List(numberOfNegatives, numberOfPositives).reduceLeft(math.max) match {
+        case `numberOfPositives` => return Markedness.POSITIVE
+        case `numberOfNegatives` => return Markedness.NEGATIVE
+        case _ =>
+          log.error("evaluating markedness failed")
+          return Markedness.NEUTRAL
+      }
+    }
 
   }
 
