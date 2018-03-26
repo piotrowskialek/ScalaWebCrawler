@@ -3,7 +3,6 @@ package WebCrawler
 import java.net.URL
 
 import WebCrawler.actors.Supervisor
-import WebCrawler.model.WordnetClient
 import akka.actor.{ActorRef, ActorSystem, PoisonPill, Props}
 
 import scala.concurrent.Await
@@ -37,17 +36,6 @@ object Main extends App {
 //        )
 //    println()
 //  }
-
-//  val stemmer = new Stemmer(new PolishStemmer(), "rysy")
-//  println(stemmer.keywordPredicate("Pogoda na rysy jest kiepska"))
-//  println(stemmer.keywordPredicate("xd Pogoda na rysy jest kiepska xd"))
-//  println(stemmer.keywordPredicate("xD Pogoda na rysach jest słaba xD"))
-//  println(stemmer.keywordPredicate("Pogoda na rysach jest kiepska"))
-//  println(stemmer.keywordPredicate("na telefonie mam rysy xD"))
-
-  val testClient = new WordnetClient(null)
-  println(testClient.valuateEmotions("Ten samochód jest kiepski".split(" ").toList))
-  println(testClient.valuateEmotions("Ten samochód jest świetny".split(" ").toList))
 
 
   implicit val system: ActorSystem = ActorSystem()
