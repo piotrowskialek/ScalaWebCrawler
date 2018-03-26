@@ -10,7 +10,7 @@ class WordnetClient(log: LoggingAdapter) {
   val WORDNET_API_URL: String = "http://plwordnet.pwr.wroc.pl/wordnet/api/lexemes/"
   val EMOTION_API_URL: String = "http://plwordnet.pwr.wroc.pl/wordnet/api/emotions/"
 
-  val MAX_TIMEOUT_MILIS = 10000
+  val MAX_TIMEOUT_MILIS = 20000
 
   val REFERER_HEADER_KEY: String= "Referer"
   val REFERER_HEADER_VAL: String = "http://plwordnet.pwr.wroc.pl/wordnet/7c93b054-2081-11e8-b33d-8bb6af2a20b8"
@@ -24,10 +24,6 @@ class WordnetClient(log: LoggingAdapter) {
   val EMOTIONS: String = "emotions"
   val MARKEDNESS: String = "markedness"
 
-  object Markedness extends Enumeration {
-    type Markedness = Value
-    val POSITIVE, NEGATIVE, NEUTRAL = Value
-  }
 
   def getEmotions(word: String): List[(String,String,String)] = {
 
@@ -74,14 +70,14 @@ class WordnetClient(log: LoggingAdapter) {
               (Option.apply(map(VALUATIONS)).getOrElse("null").toString,
                 Option.apply(map(MARKEDNESS)).getOrElse("null").toString,
                   Option.apply(map(EMOTIONS)).getOrElse("null").toString))
-//            log.info("emotion and sense parsing complete")
+            log.info("emotion and sense parsing complete")
             return listOfEmotions
           case _ =>
-//            log.error("emotion parsing error")
+            log.error("emotion parsing error")
             return List(("null","null","null"))
         }
       case _ =>
-//        log.error("sense id parsing error")
+        log.error("sense id parsing error")
         return List(("null","null","null"))
     }
 
