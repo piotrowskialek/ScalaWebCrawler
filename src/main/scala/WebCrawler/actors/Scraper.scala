@@ -79,7 +79,7 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
       listOfInfos = listOfInfos
         .flatMap(s => s.toLowerCase(new Locale("pl")).split("[\\.\\;]+").toList)//todo
         .filter(s => s.contains(keyWord))
-        .filter(s => stemmer.keywordPredicate(s))
+        .filter(s => stemmer.evaluateKeyWordPredicate(s))
       //sprawdzanie regul
       //lista zdan ze slowem kluczowym
 
