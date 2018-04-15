@@ -2,6 +2,7 @@ package WebCrawler.actors
 
 import java.net.URL
 
+import WebCrawler.model.Markedness
 import WebCrawler.{Persist, PersistFinished}
 import akka.actor.Actor
 import akka.event.Logging
@@ -20,9 +21,10 @@ class DbRepository() extends Actor {
   val collection: MongoCollection = db("site_data")
 
   def receive: Receive = {
-    case Persist(url: URL, info) =>
+    case Persist(url: URL, info: String, emotion: Markedness.Value) =>
       val insertDocument = MongoDBObject("url" -> url.toString.replace(".", ";")) //mongo krzyczalo jak byly kropki
       insertDocument.put("data", info)
+      insertDocument.put("emotion", emotion.toString)
       val selectObject = MongoDBObject("data" -> info)
       val select: MongoCursor = collection.find(selectObject)
 

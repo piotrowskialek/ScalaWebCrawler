@@ -23,4 +23,4 @@ libraryDependencies ++= Seq(
 libraryDependencies += "org.mongodb" %% "casbah" % "3.1.1"
 libraryDependencies += "javax.ws.rs" % "javax.ws.rs-api" % "2.0"
 libraryDependencies += "org.glassfish.jersey.core" % "jersey-client" % "2.22.2"
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "src/main/test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test"

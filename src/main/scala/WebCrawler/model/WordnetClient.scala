@@ -1,11 +1,14 @@
 package WebCrawler.model
 
 import akka.event.LoggingAdapter
+import morfologik.stemming.polish.PolishStemmer
 import org.jsoup.{Connection, Jsoup}
 
 import scala.util.parsing.json.JSON
 
 class WordnetClient(log: LoggingAdapter) {
+
+  val stemmer = new Stemmer(new PolishStemmer, "")
 
   val WORDNET_API_URL: String = "http://plwordnet.pwr.wroc.pl/wordnet/api/lexemes/"
   val EMOTION_API_URL: String = "http://plwordnet.pwr.wroc.pl/wordnet/api/emotions/"
@@ -83,8 +86,11 @@ class WordnetClient(log: LoggingAdapter) {
 
   }
 
-  def valuateEmotions(sentence: List[String]): Markedness.Value = {
-    val listOfEmotions: List[(String, List[(String, String, String)])] = sentence.map(word => (word, getEmotions(word)))
+  def evaluateEmotions(sentence: List[String]): Markedness.Value = {
+    val filteredSentence = sentence.filter(word => stemmer.checkIfAdjective(stemmer.parse(word)))
+    //optymalizacja, ewaluujemy tylko przymiotniki
+
+    val listOfEmotions: List[(String, List[(String, String, String)])] = filteredSentence.map(word => (word, getEmotions(word)))
     val reducedListOfEmotions: List[(String, (String, String, String))] = listOfEmotions.map(emotionTuple =>
       (emotionTuple._1, emotionTuple._2.reduce((a, b) =>
         (a._1 + ";" + b._1, a._2 + ";" + b._2, a._3 + ";" + b._3))))
@@ -92,6 +98,9 @@ class WordnetClient(log: LoggingAdapter) {
 
     val flatMapOfMarkedness: List[String] = reducedListOfEmotions
       .flatMap(_._2._2.split(";").toList)
+
+    if (flatMapOfMarkedness == Nil)
+      return Markedness.NEUTRAL
 
     val numberOfNeutrals: Int = flatMapOfMarkedness.count(_.equals("null"))
     val numberOfNegatives: Int = flatMapOfMarkedness.count(_.contains("-")) //todo: add valuating strong or weak

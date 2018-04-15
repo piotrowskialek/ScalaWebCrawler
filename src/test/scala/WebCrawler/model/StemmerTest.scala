@@ -13,7 +13,6 @@ class StemmerTest extends FlatSpec{
   )
   val stemmer = new Stemmer(new PolishStemmer(), "rysy")
 
-
   listOfTestCases(0) should "be true" in {
     assert(stemmer.evaluateKeyWordPredicate(listOfTestCases(0)))
   }
@@ -34,4 +33,10 @@ class StemmerTest extends FlatSpec{
     assert(!stemmer.evaluateKeyWordPredicate(listOfTestCases(4)))
   }
 
+  "ładny" should "be adj" in {
+    assert(stemmer.checkIfAdjective(stemmer.parse("ładny")))
+  }
+  "głowa" should "not be adj" in {
+    assert(!stemmer.checkIfAdjective(stemmer.parse("głowa")))
+  }
 }

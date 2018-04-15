@@ -50,7 +50,7 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
 
       val doc: Document = response.parse()
 
-      var listOfInfos: List[String] = doc.getElementsByClass("postbody").asScala
+      var listOfPosts: List[String] = doc.getElementsByClass("postbody").asScala
         .map(e => e.text())
         .filter(s => s.toLowerCase.contains(keyWord))
         .toList
@@ -76,14 +76,15 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
         .map(link => new URL(link))
         .toList
 
-      listOfInfos = listOfInfos
-        .flatMap(s => s.toLowerCase(new Locale("pl")).split("[\\.\\;]+").toList)//todo
-        .filter(s => s.contains(keyWord))
-        .filter(s => stemmer.evaluateKeyWordPredicate(s))
+      val listOfPostAndEmotions = listOfPosts
+        .flatMap(post => post.toLowerCase(new Locale("pl")).split("[\\.\\;\\?]+").toList)//todo
+        .filter(post => stemmer.evaluateKeyWordPredicate(post))
+        .map(post => (post, wordnetClient.evaluateEmotions(post.split(" ").toList)))
+        //lista par (post usera zawierajacych informacje -> nacechowanie)
       //sprawdzanie regul
       //lista zdan ze slowem kluczowym
 
-      return Content(title, listOfInfos, links)
+      return Content(title, listOfPostAndEmotions, links)
     } else {
       return Content(link, List(), List()) //jezeli nie html tylko jakis obrazek to pusty kontent
     }

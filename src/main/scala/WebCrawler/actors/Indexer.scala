@@ -17,11 +17,11 @@ class Indexer(supervisor: ActorRef, repository: ActorRef) extends Actor {
   val log = Logging(context.system, this)
 
   def receive: Receive = {
-    case Index(url, content) =>
+    case Index(url, content: Content) =>
       log.debug(s"indexing page $url")
       indexedPages += (url -> content)
-      for (info <- content.listOfSentences)
-        repository ! Persist(url, info)
+      for ((info, emotion) <- content.listOfSentencesAndEmotions)
+        repository ! Persist(url, info, emotion)
       //        Await.result((repository ? Persist(url, info)).mapTo[PersistFinished], timeout.duration)
 
       supervisor ! IndexFinished(url, content.urls)

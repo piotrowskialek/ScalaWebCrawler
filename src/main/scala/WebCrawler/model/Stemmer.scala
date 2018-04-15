@@ -27,7 +27,7 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) {
     val tags: Array[String] = words.map(w => getTags(w))
     val tuples: Array[(String, String)] = words zip tags
     val stemmedSentence: ListMap[String, String] = ListMap(tuples: _*)
-    return stemmedSentence
+    return stemmedSentence //mapa (słowo -> stemy)
   }
 
   def evaluateKeyWordPredicate(sentence: String): Boolean = {
@@ -56,5 +56,10 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) {
     }).exists(b => b)
 
   }
+
+  def checkIfAdjective(word: Map[String, String]): Boolean =
+    if (word.head._2.contains("adj")) true
+    else false
+
 
 }
