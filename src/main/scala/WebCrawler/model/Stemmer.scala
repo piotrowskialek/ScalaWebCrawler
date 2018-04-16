@@ -31,7 +31,6 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) {
   }
 
   def evaluateKeyWordPredicate(sentence: String): Boolean = {
-
     val stemmedSentence: Map[String, String] = parse(sentence)
     val tagsOfPartsOfSpeech: Set[List[String]] = setOfStringPatterns.map(s => s.split(" ").toList.map(w => getTags(w).split(":")(0)))
 

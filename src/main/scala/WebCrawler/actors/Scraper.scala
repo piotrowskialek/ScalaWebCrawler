@@ -15,7 +15,6 @@ import org.jsoup.{Connection, Jsoup}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContextExecutor
-import scala.util.Random
 
 
 /**
@@ -43,11 +42,12 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
   }
 
   def parse(url: URL): Content = {
-    Thread.sleep(Random.nextInt(2000))
     val link: String = url.toString
+
     val response: Connection.Response = Jsoup.connect(link).ignoreContentType(true)
       .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1")
       .execute()
+
     val contentType: String = response.contentType
     if (contentType.startsWith("text/html")) {
 
@@ -79,10 +79,13 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
         .map(link => new URL(link))
         .toList
 
+      listOfPosts.foreach(p => log.info(s"found info $p"))
+
       val listOfPostAndEmotions = listOfPosts
         .flatMap(post => post.toLowerCase(new Locale("pl")).split("[\\.\\;\\?]+").toList)//todo
         .filter(post => stemmer.evaluateKeyWordPredicate(post))
         .map(post => (post, wordnetClient.evaluateEmotions(post.split(" ").toList)))
+
         //lista par (post usera zawierajacych informacje -> nacechowanie)
       //sprawdzanie regul
       //lista zdan ze slowem kluczowym
