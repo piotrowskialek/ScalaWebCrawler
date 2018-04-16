@@ -15,6 +15,7 @@ import org.jsoup.{Connection, Jsoup}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContextExecutor
+import scala.util.Random
 
 
 /**
@@ -42,9 +43,11 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
   }
 
   def parse(url: URL): Content = {
+    Thread.sleep(Random.nextInt(2000))
     val link: String = url.toString
     val response: Connection.Response = Jsoup.connect(link).ignoreContentType(true)
-      .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1").execute()
+      .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1")
+      .execute()
     val contentType: String = response.contentType
     if (contentType.startsWith("text/html")) {
 
