@@ -54,8 +54,8 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
       val doc: Document = response.parse()
 
       var listOfPosts: List[String] = doc.getElementsByClass("postbody").asScala
-        .map(e => e.text())
-        .filter(s => s.toLowerCase.contains(keyWord))
+        .map(post => post.text())
+        //.filter(post => post.toLowerCase.contains(keyWord)) //todo sprawdzenie na zestemowanym juz
         .toList
 
       val title: String = doc.getElementsByTag("title").asScala
@@ -79,14 +79,17 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
         .map(link => new URL(link))
         .toList
 
-      listOfPosts.foreach(p => log.info(s"found info $p"))
+      listOfPosts
+        .filter(_.contains(keyWord))
+        .foreach(p => log.info(s"found info $p"))
 
       val listOfPostAndEmotions = listOfPosts
-        .flatMap(post => post.toLowerCase(new Locale("pl")).split("[\\.\\;\\?]+").toList)//todo
+        .map(post => post.toLowerCase(new Locale("pl")).replaceAll("[\\.\\;\\?]+", ""))
         .filter(post => stemmer.evaluateKeyWordPredicate(post))
         .map(post => (post, wordnetClient.evaluateEmotions(post.split(" ").toList)))
+        //lista postow -> lista
 
-        //lista par (post usera zawierajacych informacje -> nacechowanie)
+      //lista par (post usera zawierajacych informacje -> nacechowanie)
       //sprawdzanie regul
       //lista zdan ze slowem kluczowym
 

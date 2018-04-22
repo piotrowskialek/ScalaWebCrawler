@@ -30,8 +30,12 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) {
     return stemmedSentence //mapa (słowo -> stemy)
   }
 
-  def evaluateKeyWordPredicate(sentence: String): Boolean = {
-    val stemmedSentence: Map[String, String] = parse(sentence)
+  def evaluateKeyWordPredicate(post: String): Boolean = {
+
+    if (!hasKeywordInAnyForm(post))
+      return false
+
+    val stemmedSentence: Map[String, String] = parse(post)
     val tagsOfPartsOfSpeech: Set[List[String]] = setOfStringPatterns.map(s => s.split(" ").toList.map(w => getTags(w).split(":")(0)))
 
     tagsOfPartsOfSpeech.map(pattern => {
@@ -59,6 +63,24 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) {
   def checkIfAdjective(word: Map[String, String]): Boolean =
     if (word.head._2.contains("adj")) true
     else false
+
+  def hasKeywordInAnyForm(post: String): Boolean = {
+    var keywordStem: String = ""
+    val lookup = stemmer.lookup(keyword)
+    if (lookup.isEmpty)
+      keywordStem = keyword //case kiedy keyword sie nie stemuje, wtedy uznaje ze stem = keyword
+    keywordStem = lookup.get(0).getStem.toString
+
+    val listOfPostStems: Seq[String] = post.split(" ")
+      .map(word => stemmer.lookup(word).asScala.map(_.getStem).foldLeft("")(_ + "/" + _))
+
+    val stringOfPostStems = listOfPostStems.foldLeft("")(_ + "/" + _)
+    if (stringOfPostStems.contains(keywordStem))
+      return true
+    else
+      return false
+
+  }
 
 
 }
