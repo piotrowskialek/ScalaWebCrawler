@@ -74,12 +74,12 @@ class Solution:
     def __init__(self, alfa, beta, wsp_pasujacej_jakosci, wsp_niepasujacej_jakosci):
         self.wsp_pasujacej_jakosci = wsp_pasujacej_jakosci
         self.wsp_niepasujacej_jakosci = wsp_niepasujacej_jakosci
-        self.wsp_kosztu = beta
-        self.wsp_jakosci = alfa
+        self.beta = beta
+        self.alfa = alfa
         self.mapa_dopasowan_przedmiot_pracownik = {}
 
     def dodaj_dopasowanie(self, przedmiot, pracownik):
-            self.mapa_dopasowan_przedmiot_pracownik[przedmiot] = pracownik
+        self.mapa_dopasowan_przedmiot_pracownik[przedmiot] = pracownik
 
     def pobierz_przypisanego_pracownika(self, przedmiot):
         return self.mapa_dopasowan_przedmiot_pracownik[przedmiot]
@@ -102,6 +102,10 @@ class Solution:
         koszt = 0
         for pracownik in set(self.mapa_dopasowan_przedmiot_pracownik.values()):
             koszt = koszt + pracownik.pensja
+
+    # funkcja optymalizowana, to pewnie do jakiegos optymalizatora trzeba machnac
+    def fun_celu(self, jakosc, koszt):
+        return self.alfa * jakosc + self.beta * koszt
 
 
 # wartosci wejsciowe
