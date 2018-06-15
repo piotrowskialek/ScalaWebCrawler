@@ -3,17 +3,18 @@ package WebCrawler.actors
 import java.net.URL
 import java.util.Locale
 
-import WebCrawler.model.{Stemmer, WordnetClient}
+import WebCrawler.model.{Markedness, Stemmer, WordnetClient}
 import WebCrawler.{Content, Index, Scrap, ScrapFinished}
 import akka.actor.{Actor, ActorRef, _}
 import akka.event.{Logging, LoggingAdapter}
 import akka.stream.ActorMaterializer
 import morfologik.stemming.polish.PolishStemmer
 import org.apache.commons.validator.routines.UrlValidator
-import org.jsoup.nodes.Document
+import org.jsoup.nodes.{Document, Element}
 import org.jsoup.{Connection, Jsoup}
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.concurrent.ExecutionContextExecutor
 
 
@@ -55,8 +56,15 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
 
       var listOfPosts: List[String] = doc.getElementsByClass("postbody").asScala
         .map(post => post.text())
-        //.filter(post => post.toLowerCase.contains(keyWord)) //todo sprawdzenie na zestemowanym juz
         .toList
+
+      val pageClass: mutable.Seq[Element] = doc.getElementsByClass("nav").asScala
+      val originalPoster: String = if(pageClass.nonEmpty && pageClass.head.text().split(" ")(1) != "1") {
+        listOfPosts = listOfPosts.tail
+        listOfPosts.head
+      }
+      else
+        ""
 
       val title: String = doc.getElementsByTag("title").asScala
         .map(e => e.text())
@@ -83,7 +91,7 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
         .filter(_.contains(keyWord))
         .foreach(p => log.info(s"found info $p"))
 
-      val listOfPostAndEmotions = listOfPosts
+      val listOfPostAndEmotions: List[(String, Markedness.Value)] = listOfPosts
         .map(post => post.toLowerCase(new Locale("pl")).replaceAll("[\\.\\;\\?]+", ""))
         .filter(post => stemmer.evaluateKeyWordPredicate(post))
         .map(post => (post, wordnetClient.evaluateEmotions(post.split(" ").toList)))

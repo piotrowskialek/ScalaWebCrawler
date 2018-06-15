@@ -4,6 +4,8 @@ version := "1.0"
 
 scalaVersion := "2.12.1"
 
+resolvers += "jitpack" at "https://jitpack.io"
+
 libraryDependencies ++= {
   Seq(
     "org.jsoup"         % "jsoup"                                 % "1.8+"
@@ -24,3 +26,4 @@ libraryDependencies += "org.mongodb" %% "casbah" % "3.1.1"
 libraryDependencies += "javax.ws.rs" % "javax.ws.rs-api" % "2.0"
 libraryDependencies += "org.glassfish.jersey.core" % "jersey-client" % "2.22.2"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test"
+libraryDependencies += "com.github.ptnplanet" % "Java-Naive-Bayes-Classifier" % "1.0.7"

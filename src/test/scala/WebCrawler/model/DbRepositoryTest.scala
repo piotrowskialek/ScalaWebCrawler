@@ -2,6 +2,6 @@ package WebCrawler.model
 
 import org.scalatest.FlatSpec
 
-class DbRepositoryTest extends FlatSpec{
+class DbRepositoryTest extends FlatSpec {
 
 }
