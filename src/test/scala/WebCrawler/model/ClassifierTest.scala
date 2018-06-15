@@ -42,7 +42,6 @@ class ClassifierTest extends FlatSpec {
   classifier.learn("nie", util.Arrays.asList(listOfTestCases(6)))
   classifier.learn("nie", util.Arrays.asList(listOfTestCases(6)))
 
-
   println(classifier.classify(util.Arrays.asList("Pogoda na rysy jest super")).getCategory)
 
 }
