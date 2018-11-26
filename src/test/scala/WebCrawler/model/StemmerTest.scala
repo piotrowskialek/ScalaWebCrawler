@@ -4,7 +4,7 @@ import morfologik.stemming.polish.PolishStemmer
 import org.scalatest.FlatSpec
 
 
-class StemmerTest extends FlatSpec{
+class StemmerTest extends FlatSpec {
 
 
   val listOfTestCases = List("Pogoda na rysy jest kiepska",

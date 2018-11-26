@@ -19,21 +19,6 @@ class ClassifierTest extends FlatSpec {
     "asewrgertd asdasda sdasdeferg"
   )
 
-  classifier.learn("tak", util.Arrays.asList(listOfTestCases.head))
-  classifier.learn("tak", util.Arrays.asList(listOfTestCases.head))
-  classifier.learn("tak", util.Arrays.asList(listOfTestCases.head))
-  classifier.learn("tak", util.Arrays.asList(listOfTestCases.head))
-  classifier.learn("tak", util.Arrays.asList(listOfTestCases.head))
-  classifier.learn("tak", util.Arrays.asList(listOfTestCases.head))
-  classifier.learn("tak", util.Arrays.asList(listOfTestCases.head))
-  classifier.learn("tak", util.Arrays.asList(listOfTestCases.head))
-  classifier.learn("tak", util.Arrays.asList(listOfTestCases.head))
-  classifier.learn("tak", util.Arrays.asList(listOfTestCases.head))
-  classifier.learn("tak", util.Arrays.asList(listOfTestCases.head))
-  classifier.learn("tak", util.Arrays.asList(listOfTestCases.head))
-  classifier.learn("tak", util.Arrays.asList(listOfTestCases.head))
-  classifier.learn("tak", util.Arrays.asList(listOfTestCases.head))
-
   classifier.learn("nie", util.Arrays.asList(listOfTestCases(1)))
   classifier.learn("nie", util.Arrays.asList(listOfTestCases(2)))
   classifier.learn("tak", util.Arrays.asList(listOfTestCases(3)))

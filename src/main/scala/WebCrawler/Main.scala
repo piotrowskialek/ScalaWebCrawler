@@ -16,31 +16,9 @@ import scala.language.postfixOps
 
 object Main extends App {
 
-//  val stemmer = new PolishStemmer
-//
-//  val in = "Nie zabrakło oczywiście wpadek. " +
-//    "Największym zaskoczeniem okazał się dla nas strój Katarzyny Zielińskiej, " +
-//    "której ewidentnie o coś chodziło, " +
-//    "ale wciąż nie wiemy o co."
-//
-//  val splitted = in.toLowerCase(new Locale("pl")).split("[\\s\\.\\,]+")
-//
-//  for ( t <- in.toLowerCase(new Locale("pl")).split("[\\s\\.\\,]+") ) {
-//    println("> '" + t + "'")
-//      stemmer.lookup(t)
-//        .forEach(wd => {
-//            print("  - " +
-//              (if (wd.getStem == null) "<null>"
-//              else wd.getStem) + ", " + wd.getTag)
-//          }
-//        )
-//    println()
-//  }
-
-
   implicit val system: ActorSystem = ActorSystem()
 
-  val keyWord: String = args(0)
+  val keyWord: String = Option(args(0)).getOrElse("rysy")
   val supervisor: ActorRef = system.actorOf(Props(new Supervisor(system, keyWord.toLowerCase)))
 
   supervisor ! Start(new URL("http://forum.turystyka-gorska.pl/index.php"))
