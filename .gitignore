@@ -2,7 +2,9 @@
 target/.history
 target/scala-2.12/resolution-cache/
 target/streams/
-project/target/*
+project/target/
 .idea/
 graphics/
 target/scala-2.12/classes/
+.DS_Store
+target/scala-2.12/test-classes/
