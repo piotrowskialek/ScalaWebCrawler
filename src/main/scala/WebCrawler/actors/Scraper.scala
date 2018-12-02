@@ -8,7 +8,6 @@ import WebCrawler.{Content, Index, Scrap, ScrapFinished}
 import akka.actor.{Actor, ActorRef, _}
 import akka.event.{Logging, LoggingAdapter}
 import akka.stream.ActorMaterializer
-import de.daslaboratorium.machinelearning.classifier.bayes.BayesClassifier
 import morfologik.stemming.polish.PolishStemmer
 import org.apache.commons.validator.routines.UrlValidator
 import org.jsoup.nodes.{Document, Element}
@@ -32,7 +31,7 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
 
   val urlValidator = new UrlValidator()
 
-  val bayesClassifier = new KeywordBayesClassifier(new BayesClassifier[String, Boolean]())
+  val bayesClassifier = new KeywordBayesClassifier()
   val stemmer = new Stemmer(new PolishStemmer, keyWord)
   val wordnetClient = new WordnetClient(log)
 

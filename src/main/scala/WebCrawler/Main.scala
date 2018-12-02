@@ -18,6 +18,7 @@ object Main extends App {
 
   implicit val system: ActorSystem = ActorSystem()
 
+  val keywords: List[String] = args.toList
   val keyWord: String = Option(args(0)).getOrElse("rysy")
   val supervisor: ActorRef = system.actorOf(Props(new Supervisor(system, keyWord.toLowerCase)))
 

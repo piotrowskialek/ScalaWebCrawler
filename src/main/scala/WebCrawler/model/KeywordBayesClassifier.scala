@@ -4,27 +4,32 @@ import de.daslaboratorium.machinelearning.classifier.bayes.BayesClassifier
 
 import scala.collection.JavaConverters._
 
-class KeywordBayesClassifier(bayesClassifier: BayesClassifier[String, Boolean]) extends KeywordContainerPredicate {
+class KeywordBayesClassifier() extends KeywordContainerPredicate {
 
-  val listOfTestCases = List("Pogoda na rysy jest kiepska",
-    "Pozdrawiam mame",
-    "Jaki masz model zasilacza",
-    "Na rysach ostatnio była kiepska pogoda",
-    "Na telefonie mam rysy",
-    "małe yosemite na miarę możliwości naszej jury",
-    "asewrgertd asdasda sdasdeferg"
-  )
+  import KeywordBayesClassifier.bayesClassifier
 
-  bayesClassifier.learn(true, List(listOfTestCases(1)).asJava)
-  bayesClassifier.learn(false, List(listOfTestCases(2)).asJava)
-  bayesClassifier.learn(false, List(listOfTestCases(3)).asJava)
-  bayesClassifier.learn(true, List(listOfTestCases(4)).asJava)
-  bayesClassifier.learn(false, List(listOfTestCases(5)).asJava)
-  bayesClassifier.learn(true, List(listOfTestCases(6)).asJava)
-  bayesClassifier.learn(false, List(listOfTestCases(6)).asJava)
-
-  //todo learning
   override def evaluateKeyWordPredicate(post: String): Boolean = {
     bayesClassifier.classify(List(post).asJava).getCategory
   }
+}
+
+object KeywordBayesClassifier {
+
+  val bayesClassifier: BayesClassifier[String, Boolean] = new BayesClassifier[String, Boolean]()
+
+  //wczytaj z csv do Map[String, Boolean]
+  val learningMap: Map[String, Boolean] = Map[String, Boolean](
+    "Pogoda na rysy jest kiepska" -> true,
+    "Pozdrawiam mame" -> false,
+    "Jaki masz model zasilacza" -> false,
+    "Na rysach ostatnio była kiepska pogoda" -> true,
+    "Na telefonie mam rysy" -> false,
+    "małe rysy na miarę możliwości naszej jury" -> true,
+    "asewrgertd asdasda sdasdeferg" -> false,
+    "fatalna pogoda opóźniła naszą podróż" -> true
+  )
+  learningMap.foreach(pair => {
+    bayesClassifier.learn(pair._2, pair._1.split("\\s").toList.asJava)
+  })
+
 }

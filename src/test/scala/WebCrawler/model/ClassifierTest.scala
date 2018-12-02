@@ -1,32 +1,51 @@
 package WebCrawler.model
 
-
-import java.util
-
+import de.daslaboratorium.machinelearning.classifier.Classification
 import de.daslaboratorium.machinelearning.classifier.bayes.BayesClassifier
 import org.scalatest.FlatSpec
+
+import scala.collection.JavaConverters._
 
 class ClassifierTest extends FlatSpec {
 
   val classifier = new BayesClassifier[String, Boolean]()
 
-  val listOfTestCases = List("Pogoda na rysy jest kiepska",
-    "Pozdrawiam mame",
-    "Jaki masz model zasilacza",
-    "Na rysach ostatnio była kiepska pogoda",
-    "Na telefonie mam rysy",
-    "małe yosemite na miarę możliwości naszej jury",
-    "asewrgertd asdasda sdasdeferg"
+  val learningMap: Map[String, Boolean] = Map[String, Boolean](
+    "Pogoda na rysy jest kiepska" -> true,
+    "Pozdrawiam mame" -> false,
+    "Jaki masz model zasilacza" -> false,
+    "Na rysach ostatnio była kiepska pogoda" -> true,
+    "Na telefonie mam rysy" -> false,
+    "małe rysy na miarę możliwości naszej jury" -> true,
+    "asewrgertd asdasda sdasdeferg" -> false,
+    "fatalna pogoda opóźniła naszą podróż" -> true
   )
+  learningMap.foreach(pair => {
+    classifier.learn(pair._2, pair._1.split("\\s").toList.asJava)
+  })
 
-  classifier.learn(true, util.Arrays.asList(listOfTestCases(1)))
-  classifier.learn(false, util.Arrays.asList(listOfTestCases(2)))
-  classifier.learn(false, util.Arrays.asList(listOfTestCases(3)))
-  classifier.learn(true, util.Arrays.asList(listOfTestCases(4)))
-  classifier.learn(false, util.Arrays.asList(listOfTestCases(5)))
-  classifier.learn(true, util.Arrays.asList(listOfTestCases(6)))
-  classifier.learn(false, util.Arrays.asList(listOfTestCases(6)))
 
-  println(classifier.classify(util.Arrays.asList("Pogoda na rysy jest super")).getCategory)
+  "classifier" should "classify test strings to categories described in testingMap" in {
+
+    val testingMap: Map[String, Boolean] = Map[String, Boolean](
+      "Pogoda na rysy jest fatalna" -> true,
+      "Pozdrawiam serdecznie" -> false,
+      "jaki masz komputer i zasilacz" -> false,
+      "Na rysach ostatnio była super pogoda" -> true,
+      "Na tablecie mam rysy" -> false,
+      "rysy na miarę naszych możliwości" -> true,
+      "xadxsdaxsxasd xD asewrgertd asdasda sdasdeferg" -> false
+    )
+
+    testingMap.foreach(pair => {
+      val classification: Classification[String, Boolean] = classifier.classify(pair._1.split("\\s").toList.asJava)
+      println("feature set " + classification.getFeatureset)
+      println("prob " + classification.getProbability)
+      println("category " + classification.getCategory)
+      assert(pair._2.equals(classification.getCategory))
+    })
+  }
+
+
 
 }
