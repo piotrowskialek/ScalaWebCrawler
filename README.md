@@ -9,6 +9,7 @@ W ramach tego przebudowa architektury i modelu danych:
 
     
     {
+        "keywords": ["string"],
         "original-poster": {
             "post-text": "string",
             "emotion": "string"

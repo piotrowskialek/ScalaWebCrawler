@@ -5,7 +5,7 @@ import morfologik.stemming.polish.PolishStemmer
 import scala.collection.JavaConverters._
 import scala.collection.immutable.ListMap
 
-class Stemmer(stemmer: PolishStemmer, keyword: String) {
+class Stemmer(stemmer: PolishStemmer, keyword: String) extends KeywordContainerPredicate {
 
   val setOfStringPatterns: Set[String] =
     Set("Pogoda na X jest kiepska",
@@ -30,7 +30,7 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) {
     return stemmedSentence //mapa (słowo -> stemy)
   }
 
-  def evaluateKeyWordPredicate(post: String): Boolean = {
+  override def evaluateKeyWordPredicate(post: String): Boolean = {
 
     if (!hasKeywordInAnyForm(post))
       return false

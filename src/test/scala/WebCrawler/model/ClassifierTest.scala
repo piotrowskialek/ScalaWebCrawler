@@ -8,7 +8,7 @@ import org.scalatest.FlatSpec
 
 class ClassifierTest extends FlatSpec {
 
-  val classifier = new BayesClassifier[String, String]()
+  val classifier = new BayesClassifier[String, Boolean]()
 
   val listOfTestCases = List("Pogoda na rysy jest kiepska",
     "Pozdrawiam mame",
@@ -19,13 +19,13 @@ class ClassifierTest extends FlatSpec {
     "asewrgertd asdasda sdasdeferg"
   )
 
-  classifier.learn("nie", util.Arrays.asList(listOfTestCases(1)))
-  classifier.learn("nie", util.Arrays.asList(listOfTestCases(2)))
-  classifier.learn("tak", util.Arrays.asList(listOfTestCases(3)))
-  classifier.learn("nie", util.Arrays.asList(listOfTestCases(4)))
-  classifier.learn("tak", util.Arrays.asList(listOfTestCases(5)))
-  classifier.learn("nie", util.Arrays.asList(listOfTestCases(6)))
-  classifier.learn("nie", util.Arrays.asList(listOfTestCases(6)))
+  classifier.learn(true, util.Arrays.asList(listOfTestCases(1)))
+  classifier.learn(false, util.Arrays.asList(listOfTestCases(2)))
+  classifier.learn(false, util.Arrays.asList(listOfTestCases(3)))
+  classifier.learn(true, util.Arrays.asList(listOfTestCases(4)))
+  classifier.learn(false, util.Arrays.asList(listOfTestCases(5)))
+  classifier.learn(true, util.Arrays.asList(listOfTestCases(6)))
+  classifier.learn(false, util.Arrays.asList(listOfTestCases(6)))
 
   println(classifier.classify(util.Arrays.asList("Pogoda na rysy jest super")).getCategory)
 
