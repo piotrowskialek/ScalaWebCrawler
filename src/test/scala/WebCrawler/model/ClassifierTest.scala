@@ -11,13 +11,13 @@ class ClassifierTest extends FlatSpec {
   val classifier = new BayesClassifier[String, Boolean]()
 
   val learningMap: Map[String, Boolean] = Map[String, Boolean](
-    "Pogoda na rysy jest kiepska" -> true,
     "Pozdrawiam mame" -> false,
     "Jaki masz model zasilacza" -> false,
-    "Na rysach ostatnio była kiepska pogoda" -> true,
     "Na telefonie mam rysy" -> false,
-    "małe rysy na miarę możliwości naszej jury" -> true,
     "asewrgertd asdasda sdasdeferg" -> false,
+    "Pogoda na rysy jest kiepska" -> true,
+    "Na rysach ostatnio była kiepska pogoda" -> true,
+    "małe rysy na miarę możliwości naszej jury" -> true,
     "fatalna pogoda opóźniła naszą podróż" -> true
   )
   learningMap.foreach(pair => {
