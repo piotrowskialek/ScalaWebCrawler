@@ -1,10 +1,10 @@
-package WebCrawler.actors
+package crawler.actors
 
 import java.net.URL
 
-import WebCrawler.{Content, Index, IndexFinished, Persist}
 import akka.actor.{Actor, ActorRef, _}
 import akka.event.Logging
+import crawler.model._
 
 
 /**
@@ -20,10 +20,9 @@ class Indexer(supervisor: ActorRef, repository: ActorRef) extends Actor {
     case Index(url, content: Content) =>
       log.debug(s"indexing page $url")
       indexedPages += (url -> content)
-      for ((info, emotion) <- content.listOfSentencesAndEmotions)
-        repository ! Persist(url, info, emotion)
-      //        Await.result((repository ? Persist(url, info)).mapTo[PersistFinished], timeout.duration)
-
+      if (content.title.isDefined && content.listOfComments.nonEmpty) {
+        repository ! Persist(url, content.keywords, content.originalPost, content.listOfComments)
+      }
       supervisor ! IndexFinished(url, content.urls)
   }
 

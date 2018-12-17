@@ -1,4 +1,4 @@
-package WebCrawler.model
+package crawler.model
 
 object Markedness extends Enumeration {
   type Markedness = Value

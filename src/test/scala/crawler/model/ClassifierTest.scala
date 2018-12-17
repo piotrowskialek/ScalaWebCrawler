@@ -1,4 +1,4 @@
-package WebCrawler.model
+package crawler.model
 
 import de.daslaboratorium.machinelearning.classifier.Classification
 import de.daslaboratorium.machinelearning.classifier.bayes.BayesClassifier

@@ -1,10 +1,10 @@
-package WebCrawler.actors
+package crawler.actors
 
 import java.net.URL
 
-import WebCrawler._
 import akka.actor.{Actor, ActorSystem, Props, _}
 import akka.event.Logging
+import crawler.model._
 
 import scala.language.postfixOps
 

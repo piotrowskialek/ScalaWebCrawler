@@ -1,12 +1,12 @@
-package WebCrawler.actors
+package crawler.actors
 
 import java.net.URL
 
-import WebCrawler.{ProcessNextUrl, Scrap, ScrapFailure, ScrapFinished}
 import akka.actor.{Actor, Props, _}
 import akka.event.Logging
 import akka.pattern.{ask, pipe}
 import akka.util.Timeout
+import crawler.model._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

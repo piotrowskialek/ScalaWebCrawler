@@ -1,4 +1,4 @@
-package WebCrawler
+package crawler
 
 import java.net.URL
 

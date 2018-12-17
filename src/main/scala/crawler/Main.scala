@@ -1,9 +1,10 @@
-package WebCrawler
+package crawler
 
 import java.net.URL
 
-import WebCrawler.actors.Supervisor
 import akka.actor.{ActorRef, ActorSystem, PoisonPill, Props}
+import crawler.actors.Supervisor
+import crawler.model.Start
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

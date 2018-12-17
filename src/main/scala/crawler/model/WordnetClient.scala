@@ -1,4 +1,4 @@
-package WebCrawler.model
+package crawler.model
 
 import akka.event.LoggingAdapter
 import morfologik.stemming.polish.PolishStemmer

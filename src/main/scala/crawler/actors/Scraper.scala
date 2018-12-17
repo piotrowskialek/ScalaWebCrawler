@@ -1,13 +1,12 @@
-package WebCrawler.actors
+package crawler.actors
 
 import java.net.URL
 import java.util.Locale
 
-import WebCrawler.model.{KeywordBayesClassifier, Markedness, Stemmer, WordnetClient}
-import WebCrawler.{Content, Index, Scrap, ScrapFinished}
 import akka.actor.{Actor, ActorRef, _}
 import akka.event.{Logging, LoggingAdapter}
 import akka.stream.ActorMaterializer
+import crawler.model._
 import morfologik.stemming.polish.PolishStemmer
 import org.apache.commons.validator.routines.UrlValidator
 import org.jsoup.nodes.{Document, Element}
@@ -43,21 +42,20 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
       indexer ! Index(url, content)
   }
 
-  def parse(url: URL): Content = {
+  def parse(url: URL): Content = { //todo: refaktor do nowego modelu danych
     val link: String = url.toString
 
     val response: Connection.Response = Jsoup.connect(link).ignoreContentType(true)
       .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1")
       .execute()
-
     val contentType: String = response.contentType
     if (contentType.startsWith("text/html")) {
-
       val doc: Document = response.parse()
 
       var listOfPosts: List[String] = doc.getElementsByClass("postbody").asScala
         .map(post => post.text())
         .toList
+      listOfPosts.foreach(post => log.debug(s"Found post: $post"))
 
       val pageClass: mutable.Seq[Element] = doc.getElementsByClass("nav").asScala
       val originalPoster: String = if(pageClass.nonEmpty && pageClass.head.text().split(" ")(1) != "1") {
@@ -92,20 +90,17 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
         .filter(_.contains(keyWord))
         .foreach(p => log.info(s"found info $p"))
 
-      val listOfPostAndEmotions: List[(String, Markedness.Value)] = listOfPosts
-        .map(post => post.toLowerCase(new Locale("pl")).replaceAll("[\\.\\;\\?]+", ""))
-        .filter(post => stemmer.evaluateKeyWordPredicate(post))
-//        .filter(post => classifier.evaluateKeyWordPredicate(post))
-        .map(post => (post, wordnetClient.evaluateEmotions(post.split(" ").toList)))
-        //lista postow -> lista
+        val listOfComments: List[Comment] = listOfPosts
+            .map(post => post.toLowerCase(new Locale("pl")).replaceAll("[\\.\\;\\?]+", ""))
+            .filter(post => stemmer.evaluateKeyWordPredicate(post))
+  //        .filter(post => classifier.evaluateKeyWordPredicate(post))
+            .map(post => Comment(post, wordnetClient.evaluateEmotions(post.split("\\s").toList)))
+          //lista tupli (post -> nacechowanie)
 
-      //lista par (post usera zawierajacych informacje -> nacechowanie)
-      //sprawdzanie regul
-      //lista zdan ze slowem kluczowym
-
-      return Content(title, listOfPostAndEmotions, links)
+      return Content(Some(title), List(keyWord), Comment("", Markedness.NEUTRAL), listOfComments, links)
     } else {
-      return Content(link, List(), List()) //jezeli nie html tylko jakis obrazek to pusty kontent
+      //jezeli nie html tylko jakis obrazek to pusty kontent
+      return Content(None, List(), Comment("", Markedness.NEUTRAL), List(), List())
     }
   }
 }

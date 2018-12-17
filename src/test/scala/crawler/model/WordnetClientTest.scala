@@ -1,8 +1,8 @@
-package WebCrawler.model
+package crawler.model
 
-import WebCrawler.actors.Supervisor
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.event.{Logging, LoggingAdapter}
+import crawler.actors.Supervisor
 import org.scalatest.FlatSpec
 
 class WordnetClientTest extends FlatSpec{
@@ -30,7 +30,7 @@ class WordnetClientTest extends FlatSpec{
 
   "Może się wydawać że trasa na Rysy jest trudna" should "be NEGATIVE" in {
     assert(wordnetClient
-      .evaluateEmotions("Może się wydawać że trasa na Rysy jest trudna".split(" ").toList) == Markedness.NEGATIVE)
+      .evaluateEmotions("Może się wydawać że trasa na Rysy jest trudna".split("\\s").toList) == Markedness.NEGATIVE)
   }
 
   system.terminate

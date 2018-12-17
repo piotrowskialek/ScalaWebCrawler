@@ -1,4 +1,4 @@
-package WebCrawler.model
+package crawler.model
 
 import morfologik.stemming.polish.PolishStemmer
 
