@@ -54,7 +54,6 @@ class Supervisor(system: ActorSystem, keyWord: String) extends Actor {
 
   def checkAndShutdown(url: URL): Unit = {
     indexedUrls -= url
-    // if nothing to visit
     if (indexedUrls.isEmpty) {
       self ! PoisonPill
       system.terminate()

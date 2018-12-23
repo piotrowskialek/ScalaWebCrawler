@@ -21,7 +21,6 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http-core" % "10.1.0-RC2"
 
 )
-
 libraryDependencies += "org.mongodb" %% "casbah" % "3.1.1"
 libraryDependencies += "javax.ws.rs" % "javax.ws.rs-api" % "2.0"
 libraryDependencies += "org.glassfish.jersey.core" % "jersey-client" % "2.22.2"

@@ -40,16 +40,12 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) extends KeywordContainerP
 
     tagsOfPartsOfSpeech.map(pattern => {
 
-      var stringOfTags = pattern.+:(" ").reduce(_ + " " + _)//todo: zabezpieczenie przed nullem
+      var stringOfTags = pattern.+:(" ").reduce(_ + " " + _)//zabezpieczenie przed nullem
       while (stringOfTags.startsWith(" "))
-        stringOfTags = stringOfTags.replaceFirst(" ","")//todo: trimowanie
+        stringOfTags = stringOfTags.replaceFirst(" ","")
       stringOfTags = stringOfTags.replaceAll("  ", " ")
 
       val stringOfTagsPattern = stringOfTags
-
-//      val stringOfTagsPattern = pattern.filter(w => w.equals("") || w.replaceAll(" ", "").isEmpty)
-
-
       val stringOfTagsOfSentence: String = stemmedSentence.values.map(tag => tag.split(":")(0)).toList
         .filter(w => !w.equals("") || !w.replaceAll(" ", "").isEmpty)
         .mkString(" ")

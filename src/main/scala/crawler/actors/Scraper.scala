@@ -1,7 +1,7 @@
 package crawler.actors
 
 import java.net.URL
-import java.util.Locale
+import java.util.{Calendar, Locale}
 
 import akka.actor.{Actor, ActorRef, _}
 import akka.event.{Logging, LoggingAdapter}
@@ -9,11 +9,10 @@ import akka.stream.ActorMaterializer
 import crawler.model._
 import morfologik.stemming.polish.PolishStemmer
 import org.apache.commons.validator.routines.UrlValidator
-import org.jsoup.nodes.{Document, Element}
+import org.jsoup.nodes.Document
 import org.jsoup.{Connection, Jsoup}
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 import scala.concurrent.ExecutionContextExecutor
 
 
@@ -37,12 +36,12 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
   def receive: Receive = {
     case Scrap(url: URL) =>
       log.debug(s"scraping $url")
-      val content: Content = parse(url)
+      val content: Option[Content] = parse(url)
       sender() ! ScrapFinished(url)
       indexer ! Index(url, content)
   }
 
-  def parse(url: URL): Content = { //todo: refaktor do nowego modelu danych
+  def parse(url: URL): Option[Content] = { //todo: refaktor do nowego modelu danych
     val link: String = url.toString
 
     val response: Connection.Response = Jsoup.connect(link).ignoreContentType(true)
@@ -52,18 +51,22 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
     if (contentType.startsWith("text/html")) {
       val doc: Document = response.parse()
 
-      var listOfPosts: List[String] = doc.getElementsByClass("postbody").asScala
+      val listOfPosts: List[String] = doc.getElementsByClass("postbody").asScala
         .map(post => post.text())
         .toList
-      listOfPosts.foreach(post => log.debug(s"Found post: $post"))
+      listOfPosts.map(post => post).foreach(post => log.info(s"Found post: $post"))
 
-      val pageClass: mutable.Seq[Element] = doc.getElementsByClass("nav").asScala
-      val originalPoster: String = if(pageClass.nonEmpty && pageClass.head.text().split(" ")(1) != "1") {
-        listOfPosts = listOfPosts.tail
-        listOfPosts.head
-      }
-      else
-        ""
+      //TODO append date
+
+
+      //TODO OP
+//      val pageClass: mutable.Seq[Element] = doc.getElementsByClass("nav").asScala
+//      val originalPoster: String = if(pageClass.nonEmpty && pageClass.head.text().split(" ")(1) != "1") {
+//        listOfPosts = listOfPosts.tail
+//        listOfPosts.head
+//      }
+//      else
+//        ""
 
       val title: String = doc.getElementsByTag("title").asScala
         .map(e => e.text())
@@ -86,21 +89,20 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
         .map(link => new URL(link))
         .toList
 
-      listOfPosts
-        .filter(_.contains(keyWord))
-        .foreach(p => log.info(s"found info $p"))
+        val filteredListOfPosts = listOfPosts
+//            .filter(_.contains(keyWord))
+//        filteredListOfPosts.foreach(p => log.info(s"Found valid info: $p"))
 
-        val listOfComments: List[Comment] = listOfPosts
+        val listOfComments: List[Comment] = filteredListOfPosts
             .map(post => post.toLowerCase(new Locale("pl")).replaceAll("[\\.\\;\\?]+", ""))
             .filter(post => stemmer.evaluateKeyWordPredicate(post))
   //        .filter(post => classifier.evaluateKeyWordPredicate(post))
-            .map(post => Comment(post, wordnetClient.evaluateEmotions(post.split("\\s").toList)))
-          //lista tupli (post -> nacechowanie)
+            .map(post => Comment(post, wordnetClient.evaluateEmotions(post.split("\\s").toList), Calendar.getInstance().toInstant))
 
-      return Content(Some(title), List(keyWord), Comment("", Markedness.NEUTRAL), listOfComments, links)
+      return Some(Content(title, List(keyWord), Some(Data(Comment("TODO", Markedness.NEUTRAL, Calendar.getInstance().toInstant), listOfComments)), links))
     } else {
-      //jezeli nie html tylko jakis obrazek to pusty kontent
-      return Content(None, List(), Comment("", Markedness.NEUTRAL), List(), List())
+      //jezeli nie html tylko jakis obrazek to zwracamy None
+      return None
     }
   }
 }
