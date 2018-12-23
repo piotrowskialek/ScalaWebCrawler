@@ -1,7 +1,6 @@
 package crawler.actors
 
 import java.net.URL
-import java.util.Calendar
 
 import akka.actor.Actor
 import akka.event.Logging
@@ -26,7 +25,6 @@ class DbRepository() extends Actor {
       insertDocument.put("keywords", keywords)
       insertDocument.put("original-post", originalPost)
       insertDocument.put("list-of-comments", listOfComments)
-      Calendar.getInstance().getTime.toInstant
       collection.insert(insertDocument)
       log.debug(s"Saved OP: $originalPost with ${listOfComments.size} comments")
   }

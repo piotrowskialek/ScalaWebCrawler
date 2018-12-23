@@ -19,7 +19,7 @@ import scala.concurrent.ExecutionContextExecutor
 /**
   * Created by apiotrowski on 14.10.2017.
   */
-class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
+class Scraper(indexer: ActorRef, keyword: String) extends Actor {
 
   implicit val system: ActorSystem = context.system
   implicit val materializer: ActorMaterializer = ActorMaterializer()
@@ -29,19 +29,19 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
 
   val urlValidator = new UrlValidator()
 
-  val bayesClassifier = new KeywordBayesClassifier()
-  val stemmer = new Stemmer(new PolishStemmer, keyWord)
+  val polishStemmer = new PolishStemmer
+  val stemmer = new Stemmer(polishStemmer, keyword)
+  val bayesClassifier = new KeywordBayesClassifier(polishStemmer, keyword)
   val wordnetClient = new WordnetClient(log)
 
   def receive: Receive = {
     case Scrap(url: URL) =>
-      log.debug(s"scraping $url")
       val content: Option[Content] = parse(url)
       sender() ! ScrapFinished(url)
       indexer ! Index(url, content)
   }
 
-  def parse(url: URL): Option[Content] = { //todo: refaktor do nowego modelu danych
+  def parse(url: URL): Option[Content] = {
     val link: String = url.toString
 
     val response: Connection.Response = Jsoup.connect(link).ignoreContentType(true)
@@ -54,7 +54,7 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
       val listOfPosts: List[String] = doc.getElementsByClass("postbody").asScala
         .map(post => post.text())
         .toList
-      listOfPosts.map(post => post).foreach(post => log.info(s"Found post: $post"))
+      listOfPosts.map(post => post).foreach(post => log.info(s"In url: [$url] Found post: $post"))
 
       //TODO append date
 
@@ -90,8 +90,6 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
         .toList
 
         val filteredListOfPosts = listOfPosts
-//            .filter(_.contains(keyWord))
-//        filteredListOfPosts.foreach(p => log.info(s"Found valid info: $p"))
 
         val listOfComments: List[Comment] = filteredListOfPosts
             .map(post => post.toLowerCase(new Locale("pl")).replaceAll("[\\.\\;\\?]+", ""))
@@ -99,7 +97,7 @@ class Scraper(indexer: ActorRef, keyWord: String) extends Actor {
   //        .filter(post => classifier.evaluateKeyWordPredicate(post))
             .map(post => Comment(post, wordnetClient.evaluateEmotions(post.split("\\s").toList), Calendar.getInstance().toInstant))
 
-      return Some(Content(title, List(keyWord), Some(Data(Comment("TODO", Markedness.NEUTRAL, Calendar.getInstance().toInstant), listOfComments)), links))
+      return Some(Content(title, List(keyword), Some(Data(Comment("TODO", Markedness.NEUTRAL, Calendar.getInstance().toInstant), listOfComments)), links))
     } else {
       //jezeli nie html tylko jakis obrazek to zwracamy None
       return None

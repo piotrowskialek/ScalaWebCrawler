@@ -7,13 +7,8 @@ import scala.collection.immutable.ListMap
 
 class Stemmer(stemmer: PolishStemmer, keyword: String) extends KeywordContainerPredicate {
 
-  val setOfStringPatterns: Set[String] =
-    Set("Pogoda na X jest kiepska",
-    "Wczoraj na X była kiepska pogoda",
-    "Nie warto teraz wchodzć na X",
-    "Na X ostatnio była kiepska pogoda",
-    "W drodze na X była kiepska pogoda")
-    .map(s => s.replace("X", keyword))  //dla wygody
+  val setOfStringPatterns: Set[String] = io.Source.fromFile("src/resources/string_patterns.csv").getLines()
+    .map(s => s.replace("X", keyword)).toSet
 
   def getTags(word: String): String = stemmer.lookup(word).asScala
     .map(wd => wd.getTag.toString)
