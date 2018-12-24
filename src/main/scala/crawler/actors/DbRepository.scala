@@ -14,10 +14,9 @@ import crawler.model._
   */
 class DbRepository() extends Actor {
 
+  import DbRepository.collection
+
   val log = Logging(context.system, this)
-  val mongoClient: MongoClient = MongoClient("localhost", 27017)
-  val db: MongoDB = mongoClient("web_crawler")
-  val collection: MongoCollection = db("site_data")
 
   def receive: Receive = {
     case Persist(url: URL, keywords: List[String], originalPost: Comment, listOfComments: List[Comment]) =>
@@ -28,4 +27,11 @@ class DbRepository() extends Actor {
       collection.insert(insertDocument)
       log.debug(s"Saved OP: $originalPost with ${listOfComments.size} comments")
   }
+}
+
+object DbRepository {
+
+  val mongoClient: MongoClient = MongoClient("localhost", 27017)
+  val db: MongoDB = mongoClient("web_crawler")
+  val collection: MongoCollection = db("site_data")
 }
