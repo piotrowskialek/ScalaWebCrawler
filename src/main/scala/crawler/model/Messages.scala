@@ -13,7 +13,7 @@ case class ProcessNextUrl()
 
 case class Content(title: String, keywords: List[String], data: Option[Data], urls: List[URL])
 case class Data(originalPost: Comment, listOfComments: List[Comment])
-case class Comment(post: String, emotion: Markedness.Value, dateOfPost: Instant)
+case class Comment(post: String, emotion: String, dateOfPost: Instant)
 
 case class ScrapFinished(url: URL)
 case class IndexFinished(url: URL, urls: List[URL])

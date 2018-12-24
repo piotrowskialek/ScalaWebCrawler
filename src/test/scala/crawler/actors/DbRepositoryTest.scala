@@ -5,6 +5,7 @@ import java.util.Calendar
 
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
+import crawler.model.Markedness.enum2String
 import crawler.model._
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
