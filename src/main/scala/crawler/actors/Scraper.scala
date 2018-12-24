@@ -97,7 +97,8 @@ class Scraper(indexer: ActorRef, keyword: String) extends Actor {
   //        .filter(post => classifier.evaluateKeyWordPredicate(post))
             .map(post => Comment(post, wordnetClient.evaluateEmotions(post.split("\\s").toList), Calendar.getInstance().toInstant))
 
-      return Some(Content(title, List(keyword), Some(Data(Comment("TODO", Markedness.NEUTRAL, Calendar.getInstance().toInstant), listOfComments)), links))
+      return Some(Content(title, List(keyword), Some(Data(Comment("TODO", Markedness.NEUTRAL,
+        Calendar.getInstance().toInstant), listOfComments)), links))
     } else {
       //jezeli nie html tylko jakis obrazek to zwracamy None
       return None
