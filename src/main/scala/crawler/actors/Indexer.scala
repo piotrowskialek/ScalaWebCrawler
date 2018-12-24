@@ -10,7 +10,7 @@ import crawler.model._
 /**
   * Created by apiotrowski on 14.10.2017.
   */
-class Indexer(supervisor: ActorRef, repository: ActorRef) extends Actor {
+class Indexer(supervisor: ActorRef, dbRepository: ActorRef) extends Actor {
 
   var indexedPages = Map.empty[URL, Option[Content]]
 
@@ -21,10 +21,11 @@ class Indexer(supervisor: ActorRef, repository: ActorRef) extends Actor {
       log.debug(s"indexing page $url")
       indexedPages += (url -> content)
       content.flatMap(_.data).filter(_.listOfComments.nonEmpty).foreach(data => {
-        repository ! Persist(url, content.get.keywords, data.originalPost, data.listOfComments)
+        dbRepository ! Persist(url, content.get.keywords, data.originalPost, data.listOfComments)
       })
       val urls = content.map(_.urls).getOrElse(List())
       supervisor ! IndexFinished(url, urls)
+      sender() ! IndexFinished(url, urls)
   }
 
   @throws[Exception](classOf[Exception])

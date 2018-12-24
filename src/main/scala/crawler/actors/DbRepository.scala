@@ -4,10 +4,12 @@ import java.net.URL
 
 import akka.actor.Actor
 import akka.event.Logging
-import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.casbah.{MongoClient, MongoCollection, MongoDB}
 import crawler.model._
-
+import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
+import org.bson.codecs.configuration.CodecRegistry
+import org.mongodb.scala._
+import org.mongodb.scala.bson.codecs.DEFAULT_CODEC_REGISTRY
+import org.mongodb.scala.bson.codecs.Macros._
 
 /**
   * Created by apiotrowski on 23.10.2017.
@@ -20,18 +22,27 @@ class DbRepository() extends Actor {
 
   def receive: Receive = {
     case Persist(url: URL, keywords: List[String], originalPost: Comment, listOfComments: List[Comment]) =>
-      val insertDocument = MongoDBObject("url" -> url.toString.replace(".", ";")) //mongo krzyczalo jak byly kropki
-      insertDocument.put("keywords", keywords)
-      insertDocument.put("original-post", originalPost)
-      insertDocument.put("list-of-comments", listOfComments)
-      collection.insert(insertDocument)
-      log.debug(s"Saved OP: $originalPost with ${listOfComments.size} comments")
+
+      val insertData: InsertData = InsertData(url.toString.replace(".", ";"),
+          keywords,
+          Data(originalPost, listOfComments))
+
+      collection.insertOne(insertData).subscribe(new Observer[Completed] {
+        override def onNext(result: Completed): Unit = None
+        override def onError(e: Throwable): Unit = log.error(s"Failed saving OP: $originalPost Exception: $e")
+        override def onComplete(): Unit = log.info(s"Saved OP: $originalPost with ${listOfComments.size} comments")
+      })
+      sender() ! PersistFinished(url)
   }
 }
 
 object DbRepository {
+  val codecRegistry: CodecRegistry = fromRegistries(fromProviders(classOf[InsertData],
+    classOf[Data], classOf[Comment]), DEFAULT_CODEC_REGISTRY)
 
-  val mongoClient: MongoClient = MongoClient("localhost", 27017)
-  val db: MongoDB = mongoClient("web_crawler")
-  val collection: MongoCollection = db("site_data")
+  val mongoClient: MongoClient = MongoClient("mongodb://localhost:27017/web_crawler")
+  val collection: MongoCollection[InsertData] = mongoClient
+    .getDatabase("web_crawler")
+    .withCodecRegistry(codecRegistry)
+    .getCollection("site_data")
 }

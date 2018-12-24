@@ -22,6 +22,7 @@ case class ScrapFailure(url: URL, reason: Throwable)
 case class Persist(url: URL, keywords: List[String], originalPost: Comment, listOfComments: List[Comment])
 case class PersistFinished(url: URL)
 case class PersistFailed(url: URL, reason: Throwable)
+case class InsertData(url: String, keywords: List[String], data: Data)
 
 case class Stem(word: String)
 case class StemFinished(word: String, stem: String)
