@@ -23,8 +23,11 @@ class DbRepositoryTest extends TestKit(ActorSystem("MySpec")) with ImplicitSende
   "DbRepository actor" must {
     "save content when recieved so" in {
       val url: URL = new URL("http://www.onet.pl")
-      val persistData: Persist = Persist(url, List(keyword), Comment("TODO", Markedness.NEUTRAL, Calendar.getInstance().toInstant),
-        List(Comment("TODO", Markedness.NEUTRAL, Calendar.getInstance().toInstant)))
+      val persistData: Persist = Persist(
+        url,
+        Comment("TODO", Markedness.NEUTRAL, Calendar.getInstance().toInstant, List("")),
+        List(Comment("TODO", Markedness.NEUTRAL, Calendar.getInstance().toInstant, List("")))
+      )
       dbRepository ! persistData
       expectMsg(PersistFinished(url))
     }

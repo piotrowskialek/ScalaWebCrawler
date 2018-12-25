@@ -38,7 +38,8 @@ class Supervisor(system: ActorSystem) extends Actor {
         urls.toSet
           .filter(l => !scrapCounts.contains(l))
           .filter(l => !listOfForbiddenHosts.exists(l.getHost.contains(_)))
-          .filter(l => l.getHost.contains("forum.turystyka-gorska.pl"))////////////////todo
+          .filter(_.getHost.contains("forum.turystyka-gorska.pl"))////////////////todo
+          .filter(!_.getHost.contains("viewprofile"))
           .foreach(scrap)
 
       checkAndShutdown(url)

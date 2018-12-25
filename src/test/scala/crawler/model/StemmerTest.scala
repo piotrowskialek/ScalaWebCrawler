@@ -53,15 +53,27 @@ class StemmerTest extends FlatSpec {
     assert(!stemmer.checkIfAdjective(stemmer.parse("głowa")))
   }
 
-  "getAssociatedKeywords" must "return List(\"rysy\")" in {
+  "getAssociatedKeywords" must "return valid list" in {
+    assertResult(List("rysy")) {
+      stemmer.getAssociatedKeywords("Rysy są ładne asdaisbdhsbeufh")
+    }
     assertResult(List("rysy")) {
       stemmer.getAssociatedKeywords("Rysy są ładne")
     }
-  }
-
-  "getAssociatedKeywords called with weird strings" must "return List(\"rysy\")" in {
-    assertResult(List("rysy")) {
-      stemmer.getAssociatedKeywords("Rysy są ładne asdaisbdhsbeufh")
+    assertResult(List("dolina", "chocholowska")) {
+      stemmer.getAssociatedKeywords("Dolina Chochołowska jest piękna")
+    }
+    assertResult(List("dolina", "chocholowskiej")) {
+      stemmer.getAssociatedKeywords("W Dolinie Chochołowskiej jest pięknie")
+    }
+    assertResult(List("gerlach")) {
+      stemmer.getAssociatedKeywords("Droga na Gerlach jest trudna")
+    }
+    assertResult(List("waksmundzka")) {
+      stemmer.getAssociatedKeywords("Waksmundzka przełęcz jest super")
+    }
+    assertResult(List("raczkowa")) {
+      stemmer.getAssociatedKeywords("Raczkowa cośtam cośtam asdasdxasdxas")
     }
   }
 

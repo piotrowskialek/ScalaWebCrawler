@@ -21,10 +21,9 @@ class DbRepository() extends Actor {
   val log = Logging(context.system, this)
 
   def receive: Receive = {
-    case Persist(url: URL, keywords: List[String], originalPost: Comment, listOfComments: List[Comment]) =>
+    case Persist(url: URL, originalPost: Comment, listOfComments: List[Comment]) =>
 
       val insertData: InsertData = InsertData(url.toString.replace(".", ";"),
-          keywords,
           Data(originalPost, listOfComments))
 
       collection.insertOne(insertData).subscribe(new Observer[Completed] {

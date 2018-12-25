@@ -93,12 +93,21 @@ class Scraper(indexer: ActorRef) extends Actor {
 
         val listOfComments: List[Comment] = filteredListOfPosts
             .map(post => post.toLowerCase(new Locale("pl")).replaceAll("[\\.\\;\\?]+", ""))
-            .filter(post => stemmer.checkSenseAndGetAssociatedKeywords(post)._1) //todo wyciagnij stad liste keywordow i zwruc
+            .map(post => (post, stemmer.checkSenseAndGetAssociatedKeywords(post)))
+            .map(post => ScrapingData(post._1, post._2._1, post._2._2))
+            .filter(_.hasSense) //todo wyciagnij stad liste keywordow i zwruc
   //        .filter(post => classifier.evaluateKeyWordPredicate(post))
-            .map(post => Comment(post, wordnetClient.evaluateEmotions(post.split("\\s").toList), Calendar.getInstance().toInstant))
+            .map(data => Comment(data.post, wordnetClient.evaluateEmotions(data.post.split("\\s").toList),
+          Calendar.getInstance().toInstant, data.associatedKeywords))
 
-      return Some(Content(title, List("TODO"), Some(Data(Comment("TODO", Markedness.NEUTRAL,
-        Calendar.getInstance().toInstant), listOfComments)), links))
+      return Some(Content(title,
+        Some(Data(
+          Comment(
+            "POST OPA",
+            Markedness.NEUTRAL,
+            Calendar.getInstance().toInstant,
+            List("KEYWORDY OPA")
+          ), listOfComments)), links))
     } else {
       //jezeli nie html tylko jakis obrazek to zwracamy None
       return None

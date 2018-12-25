@@ -21,7 +21,7 @@ class Indexer(supervisor: ActorRef, dbRepository: ActorRef) extends Actor {
       log.debug(s"indexing page $url")
       indexedPages += (url -> content)
       content.flatMap(_.data).filter(_.listOfComments.nonEmpty).foreach(data => {
-        dbRepository ! Persist(url, content.get.keywords, data.originalPost, data.listOfComments)
+        dbRepository ! Persist(url, data.originalPost, data.listOfComments)
       })
       val urls = content.map(_.urls).getOrElse(List())
       supervisor ! IndexFinished(url, urls)

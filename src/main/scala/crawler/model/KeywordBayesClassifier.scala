@@ -23,7 +23,7 @@ class KeywordBayesClassifier(stemmer: PolishStemmer) extends KeywordContainerPre
     return (result, associatedKeywords)
   }
 
-  def getAssociatedKeywords(post: String): List[String] = {
+  override def getAssociatedKeywords(post: String): List[String] = {
 
     val listOfPostStems: Seq[String] = post.split(" ")
       .map(word => stemmer.lookup(word).asScala

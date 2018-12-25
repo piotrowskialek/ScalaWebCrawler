@@ -62,19 +62,23 @@ class Stemmer(stemmer: PolishStemmer) extends KeywordContainerPredicate {
     if (word.head._2.contains("adj")) true
     else false
 
-  def getAssociatedKeywords(post: String): List[String] = {
+  override def getAssociatedKeywords(post: String): List[String] = {
 
     val listOfPostStems: Seq[String] = post.split(" ")
       .map(word => stemmer.lookup(word).asScala
         .map(_.getStem)
         .map(_.toString)
-        .map(_.toLowerCase(new Locale("pl")))
-        .map(deAccent)
         .headOption
-        .getOrElse("")) //todo check if head or foldLeft is better
+        .getOrElse(word))
+
+    val parsedListOfPostStems = listOfPostStems
+      .map(deAccent)
+      .map(_.toLowerCase(new Locale("pl")))
+
+    //todo check if head or foldLeft is better
 //        .foldLeft("")(_ + "/" + _)
 
-    return keywords.intersect(listOfPostStems)
+    return keywords.intersect(parsedListOfPostStems)
   }
 
   def deAccent(str: String): String = {
