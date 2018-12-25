@@ -1,9 +1,12 @@
 package crawler.model
 
+import java.io.IOException
+
 import akka.event.LoggingAdapter
 import morfologik.stemming.polish.PolishStemmer
 import org.jsoup.{Connection, Jsoup}
 
+import scala.util.Random
 import scala.util.parsing.json.JSON
 
 class WordnetClient(log: LoggingAdapter) {
@@ -30,16 +33,24 @@ class WordnetClient(log: LoggingAdapter) {
 
   def getEmotions(word: String): List[(String,String,String)] = {
 
+    Thread.sleep(500 + Random.nextInt(1500)) //do not overflood the api
     val wordnetApiLink = WORDNET_API_URL + word
 
-    val response: Connection.Response = Jsoup.connect(wordnetApiLink)
-      .timeout(MAX_TIMEOUT_MILIS)
-      .header(REFERER_HEADER_KEY, REFERER_HEADER_VAL).ignoreContentType(true)
-      .header(IF_NONE_MATCH_KEY, IF_NONE_MATCH_VAL)
-      .header(REFERER_KEY,REFERER_VAL)
-      .userAgent(USER_AGENT)
-      .execute()
-
+    var response: Connection.Response = null
+    try {
+      response= Jsoup.connect(wordnetApiLink)
+        .timeout(MAX_TIMEOUT_MILIS)
+        .header(REFERER_HEADER_KEY, REFERER_HEADER_VAL).ignoreContentType(true)
+        .header(IF_NONE_MATCH_KEY, IF_NONE_MATCH_VAL)
+        .header(REFERER_KEY, REFERER_VAL)
+        .userAgent(USER_AGENT)
+        .timeout(MAX_TIMEOUT_MILIS)
+        .execute()
+    } catch {
+      case e: IOException =>
+        log.error("Wordnet connection timeout: " + e)
+        return List(("null","null","null"))
+    }
     val senseJSON = JSON.parseFull(response
       .parse()
       .body()
@@ -51,14 +62,21 @@ class WordnetClient(log: LoggingAdapter) {
         return List(("null","null","null"))
       case Some(list: List[Map[String, Any]]) =>
         val emotionLink = EMOTION_API_URL + Option.apply(list.head("sense_id")).getOrElse()
-        val emotionResponse = Jsoup.connect(emotionLink)
-          .timeout(MAX_TIMEOUT_MILIS)
-          .header(REFERER_HEADER_KEY, REFERER_HEADER_VAL).ignoreContentType(true)
-          .header(IF_NONE_MATCH_KEY, IF_NONE_MATCH_VAL)
-          .header(REFERER_KEY,REFERER_VAL)
-          .userAgent(USER_AGENT)
-          .execute()
 
+        var emotionResponse: Connection.Response = null
+        try {
+          emotionResponse = Jsoup.connect(emotionLink)
+            .timeout(MAX_TIMEOUT_MILIS)
+            .header(REFERER_HEADER_KEY, REFERER_HEADER_VAL).ignoreContentType(true)
+            .header(IF_NONE_MATCH_KEY, IF_NONE_MATCH_VAL)
+            .header(REFERER_KEY,REFERER_VAL)
+            .userAgent(USER_AGENT)
+            .execute()
+        } catch {
+          case e: IOException =>
+            log.error("Wordnet connection timeout: " + e)
+            return List(("null","null","null"))
+        }
         val emotionJSON = JSON.parseFull(emotionResponse
           .parse()
           .body()

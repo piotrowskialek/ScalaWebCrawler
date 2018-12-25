@@ -51,9 +51,12 @@ class Scraper(indexer: ActorRef) extends Actor {
     if (contentType.startsWith("text/html")) {
       val doc: Document = response.parse()
 
-      val listOfPosts: List[String] = doc.getElementsByClass("postbody").asScala
-        .map(post => post.text())
+      val listOfPosts: List[String] = doc
+        .getElementsByClass("postbody")
+        .asScala
+        .map(post => post.text())//////
         .toList
+      //dla kazdego dodaj date postu
       listOfPosts.map(post => post).foreach(post => log.info(s"In url: [$url] Found post: $post"))
 
       //TODO append date
@@ -89,13 +92,11 @@ class Scraper(indexer: ActorRef) extends Actor {
         .map(link => new URL(link))
         .toList
 
-        val filteredListOfPosts = listOfPosts
-
-        val listOfComments: List[Comment] = filteredListOfPosts
+        val listOfComments: List[Comment] = listOfPosts
             .map(post => post.toLowerCase(new Locale("pl")).replaceAll("[\\.\\;\\?]+", ""))
             .map(post => (post, stemmer.checkSenseAndGetAssociatedKeywords(post)))
             .map(post => ScrapingData(post._1, post._2._1, post._2._2))
-            .filter(_.hasSense) //todo wyciagnij stad liste keywordow i zwruc
+            .filter(_.hasSense)
   //        .filter(post => classifier.evaluateKeyWordPredicate(post))
             .map(data => Comment(data.post, wordnetClient.evaluateEmotions(data.post.split("\\s").toList),
           Calendar.getInstance().toInstant, data.associatedKeywords))

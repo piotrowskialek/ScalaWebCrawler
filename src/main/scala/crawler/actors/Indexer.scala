@@ -23,7 +23,7 @@ class Indexer(supervisor: ActorRef, dbRepository: ActorRef) extends Actor {
       content.flatMap(_.data).filter(_.listOfComments.nonEmpty).foreach(data => {
         dbRepository ! Persist(url, data.originalPost, data.listOfComments)
       })
-      val urls = content.map(_.urls).getOrElse(List())
+      val urls = content.map(_.urls).getOrElse(List.empty)
       supervisor ! IndexFinished(url, urls)
       sender() ! IndexFinished(url, urls)
   }
