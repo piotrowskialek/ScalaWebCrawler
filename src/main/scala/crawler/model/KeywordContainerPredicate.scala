@@ -1,5 +1,5 @@
 package crawler.model
 
 trait KeywordContainerPredicate {
-  def evaluateKeyWordPredicate(post: String): Boolean
+  def checkSenseAndGetAssociatedKeywords(post: String): (Boolean, List[String])
 }

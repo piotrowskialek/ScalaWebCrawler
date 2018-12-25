@@ -93,7 +93,7 @@ class Scraper(indexer: ActorRef) extends Actor {
 
         val listOfComments: List[Comment] = filteredListOfPosts
             .map(post => post.toLowerCase(new Locale("pl")).replaceAll("[\\.\\;\\?]+", ""))
-            .filter(post => stemmer.evaluateKeyWordPredicate(post))
+            .filter(post => stemmer.checkSenseAndGetAssociatedKeywords(post)._1) //todo wyciagnij stad liste keywordow i zwruc
   //        .filter(post => classifier.evaluateKeyWordPredicate(post))
             .map(post => Comment(post, wordnetClient.evaluateEmotions(post.split("\\s").toList), Calendar.getInstance().toInstant))
 

@@ -14,12 +14,13 @@ class KeywordBayesClassifier(stemmer: PolishStemmer) extends KeywordContainerPre
 
   import KeywordBayesClassifier.{bayesClassifier, keywords}
 
-  override def evaluateKeyWordPredicate(post: String): Boolean = {
+  override def checkSenseAndGetAssociatedKeywords(post: String): (Boolean, List[String]) = {
 
     val associatedKeywords: List[String] = getAssociatedKeywords(post)
     if (associatedKeywords.isEmpty)
-      return false
-    bayesClassifier.classify(List(post).asJava).getCategory
+      return (false, associatedKeywords)
+    val result: Boolean = bayesClassifier.classify(List(post).asJava).getCategory
+    return (result, associatedKeywords)
   }
 
   def getAssociatedKeywords(post: String): List[String] = {

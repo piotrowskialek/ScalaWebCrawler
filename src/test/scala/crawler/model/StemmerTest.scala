@@ -18,31 +18,31 @@ class StemmerTest extends FlatSpec {
   val stemmer = new Stemmer(new PolishStemmer())
 
   listOfTestCases(0) should "be true" in {
-    assert(stemmer.evaluateKeyWordPredicate(listOfTestCases(0)))
+    assert(stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(0)))
   }
 
   listOfTestCases(1) should "be false" in {
-    assert(!stemmer.evaluateKeyWordPredicate(listOfTestCases(1)))
+    assert(!stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(1)))
   }
 
   listOfTestCases(2) should "be false" in {
-    assert(!stemmer.evaluateKeyWordPredicate(listOfTestCases(2)))
+    assert(!stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(2)))
   }
 
   listOfTestCases(3) should "be true" in {
-    assert(stemmer.evaluateKeyWordPredicate(listOfTestCases(3)))
+    assert(stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(3)))
   }
 
   listOfTestCases(4) should "be false" in {
-    assert(!stemmer.evaluateKeyWordPredicate(listOfTestCases(4)))
+    assert(!stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(4)))
   }
 
   listOfTestCases(5) should "be false" in {
-    assert(!stemmer.evaluateKeyWordPredicate(listOfTestCases(5)))
+    assert(!stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(5)))
   }
 
   listOfTestCases(6) should "be false" in {
-    assert(!stemmer.evaluateKeyWordPredicate(listOfTestCases(6)))
+    assert(!stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(6)))
   }
 
   "ładny" should "be adj" in {

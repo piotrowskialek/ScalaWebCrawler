@@ -30,16 +30,17 @@ class Stemmer(stemmer: PolishStemmer) extends KeywordContainerPredicate {
     return stemmedSentence //mapa (słowo -> stemy)
   }
 
-  override def evaluateKeyWordPredicate(post: String): Boolean = {
+  override def checkSenseAndGetAssociatedKeywords(post: String): (Boolean, List[String]) = {
 
     val associatedKeywords: List[String] = getAssociatedKeywords(post)
     if (associatedKeywords.isEmpty)
-      return false
+      return (false, associatedKeywords)
 
     val stemmedSentence: Map[String, String] = parse(post)
-    val tagsOfPartsOfSpeech: Set[List[String]] = setOfStringPatterns.map(s => s.split(" ").toList.map(w => getTags(w).split(":")(0)))
+    val tagsOfPartsOfSpeech: Set[List[String]] = setOfStringPatterns
+      .map(s => s.split(" ").toList.map(w => getTags(w).split(":")(0)))
 
-    tagsOfPartsOfSpeech.map(pattern => {
+    val result: Boolean = tagsOfPartsOfSpeech.map(pattern => {
 
       var stringOfTags = pattern.+:(" ").reduce(_ + " " + _)//zabezpieczenie przed nullem
       while (stringOfTags.startsWith(" "))
@@ -54,7 +55,7 @@ class Stemmer(stemmer: PolishStemmer) extends KeywordContainerPredicate {
       stringOfTagsOfSentence.contains(stringOfTagsPattern)
 
     }).exists(b => b)
-
+    return (result, associatedKeywords)
   }
 
   def checkIfAdjective(word: Map[String, String]): Boolean =
