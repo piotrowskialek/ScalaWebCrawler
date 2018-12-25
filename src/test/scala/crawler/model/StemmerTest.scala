@@ -18,31 +18,31 @@ class StemmerTest extends FlatSpec {
   val stemmer = new Stemmer(new PolishStemmer())
 
   listOfTestCases(0) should "be true" in {
-    assert(stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(0)))
+    assert(stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(0))._1)
   }
 
   listOfTestCases(1) should "be false" in {
-    assert(!stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(1)))
+    assert(!stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(1))._1)
   }
 
   listOfTestCases(2) should "be false" in {
-    assert(!stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(2)))
+    assert(!stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(2))._1)
   }
 
   listOfTestCases(3) should "be true" in {
-    assert(stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(3)))
+    assert(stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(3))._1)
   }
 
   listOfTestCases(4) should "be false" in {
-    assert(!stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(4)))
+    assert(!stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(4))._1)
   }
 
   listOfTestCases(5) should "be false" in {
-    assert(!stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(5)))
+    assert(!stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(5))._1)
   }
 
   listOfTestCases(6) should "be false" in {
-    assert(!stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(6)))
+    assert(!stemmer.checkSenseAndGetAssociatedKeywords(listOfTestCases(6))._1)
   }
 
   "ładny" should "be adj" in {
