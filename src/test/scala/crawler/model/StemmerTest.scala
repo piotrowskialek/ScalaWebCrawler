@@ -48,7 +48,27 @@ class StemmerTest extends FlatSpec {
   "ładny" should "be adj" in {
     assert(stemmer.checkIfAdjective(stemmer.parse("ładny")))
   }
+
   "głowa" should "not be adj" in {
     assert(!stemmer.checkIfAdjective(stemmer.parse("głowa")))
   }
+
+  "getAssociatedKeywords" must "return List(\"rysy\")" in {
+    assertResult(List("rysy")) {
+      stemmer.getAssociatedKeywords("Rysy są ładne")
+    }
+  }
+
+  "getAssociatedKeywords called with weird strings" must "return List(\"rysy\")" in {
+    assertResult(List("rysy")) {
+      stemmer.getAssociatedKeywords("Rysy są ładne asdaisbdhsbeufh")
+    }
+  }
+
+  "deAccent" must "return SZOLACEZaoleacnN" in {
+    assertResult("SZOLACEZaoleacnN") {
+      stemmer.deAccent("ŚŻÓŁĄĆĘŹąółęąćńŃ")
+    }
+  }
+
 }

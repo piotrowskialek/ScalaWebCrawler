@@ -1,5 +1,9 @@
 package crawler.model
 
+import java.text.Normalizer
+import java.util.Locale
+import java.util.regex.Pattern
+
 import morfologik.stemming.polish.PolishStemmer
 
 import scala.collection.JavaConverters._
@@ -73,5 +77,27 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) extends KeywordContainerP
 
   }
 
+  def getAssociatedKeywords(post: String): List[String] = {
+
+    val keywords: List[String] = io.Source.fromFile("src/resources/keywords.csv").getLines().toList
+    val listOfPostStems: Seq[String] = post.split(" ")
+      .map(word => stemmer.lookup(word).asScala
+        .map(_.getStem)
+        .map(_.toString)
+        .map(_.toLowerCase(new Locale("pl")))
+        .map(deAccent)
+        .headOption
+        .getOrElse("")) //todo check if head or foldLeft is better
+//        .foldLeft("")(_ + "/" + _)
+
+    return keywords.intersect(listOfPostStems)
+
+  }
+
+  def deAccent(str: String): String = {
+    val nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD)
+    val pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
+    pattern.matcher(nfdNormalizedString).replaceAll("").replaceAll("ł", "l").replaceAll("Ł", "L")
+  }
 
 }
