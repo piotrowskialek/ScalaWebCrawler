@@ -17,9 +17,9 @@ import scala.util.Random
 /**
   * Created by apiotrowski on 14.10.2017.
   */
-class SiteCrawler(supervisor: ActorRef, indexer: ActorRef, keyWord: String) extends Actor {
+class SiteCrawler(supervisor: ActorRef, indexer: ActorRef) extends Actor {
 
-  val scraper: ActorRef = context actorOf Props(new Scraper(indexer, keyWord))
+  val scraper: ActorRef = context actorOf Props(new Scraper(indexer))
 
   val log = Logging(context.system, this)
 

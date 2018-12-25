@@ -11,7 +11,7 @@ import scala.language.postfixOps
 /**
   * Created by apiotrowski on 14.10.2017.
   */
-class Supervisor(system: ActorSystem, keyWord: String) extends Actor {
+class Supervisor(system: ActorSystem) extends Actor {
 
   val dbRepository: ActorRef = context actorOf Props(new DbRepository())
   val indexer: ActorRef = context actorOf Props(new Indexer(self, dbRepository))
@@ -65,7 +65,7 @@ class Supervisor(system: ActorSystem, keyWord: String) extends Actor {
     log.debug(s"host = $host")
     if (!host.isEmpty) {
       val siteCrawler = hostActorRepository.getOrElse(host, {
-        val newSiteCrawler = system actorOf Props(new SiteCrawler(self, indexer, keyWord))
+        val newSiteCrawler = system actorOf Props(new SiteCrawler(self, indexer))
         hostActorRepository += (host -> newSiteCrawler)
         newSiteCrawler
       })

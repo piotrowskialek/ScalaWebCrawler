@@ -9,10 +9,11 @@ import morfologik.stemming.polish.PolishStemmer
 import scala.collection.JavaConverters._
 import scala.collection.immutable.ListMap
 
-class Stemmer(stemmer: PolishStemmer, keyword: String) extends KeywordContainerPredicate {
+class Stemmer(stemmer: PolishStemmer) extends KeywordContainerPredicate {
 
+  val keywords: List[String] = io.Source.fromFile("src/resources/keywords.csv").getLines().toList
   val setOfStringPatterns: Set[String] = io.Source.fromFile("src/resources/string_patterns.csv").getLines()
-    .map(s => s.replace("X", keyword)).toSet
+    .map(s => s.replace("X", keywords.head)).toSet
 
   def getTags(word: String): String = stemmer.lookup(word).asScala
     .map(wd => wd.getTag.toString)
@@ -31,7 +32,8 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) extends KeywordContainerP
 
   override def evaluateKeyWordPredicate(post: String): Boolean = {
 
-    if (!hasKeywordInAnyForm(post))
+    val associatedKeywords: List[String] = getAssociatedKeywords(post)
+    if (associatedKeywords.isEmpty)
       return false
 
     val stemmedSentence: Map[String, String] = parse(post)
@@ -59,27 +61,8 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) extends KeywordContainerP
     if (word.head._2.contains("adj")) true
     else false
 
-  def hasKeywordInAnyForm(post: String): Boolean = {
-    var keywordStem: String = ""
-    val lookup = stemmer.lookup(keyword)
-    if (lookup.isEmpty)
-      keywordStem = keyword //case kiedy keyword sie nie stemuje, wtedy uznaje ze stem = keyword
-    keywordStem = lookup.get(0).getStem.toString
-
-    val listOfPostStems: Seq[String] = post.split(" ")
-      .map(word => stemmer.lookup(word).asScala.map(_.getStem).foldLeft("")(_ + "/" + _))
-
-    val stringOfPostStems = listOfPostStems.foldLeft("")(_ + "/" + _)
-    if (stringOfPostStems.contains(keywordStem))
-      return true
-    else
-      return false
-
-  }
-
   def getAssociatedKeywords(post: String): List[String] = {
 
-    val keywords: List[String] = io.Source.fromFile("src/resources/keywords.csv").getLines().toList
     val listOfPostStems: Seq[String] = post.split(" ")
       .map(word => stemmer.lookup(word).asScala
         .map(_.getStem)
@@ -91,7 +74,6 @@ class Stemmer(stemmer: PolishStemmer, keyword: String) extends KeywordContainerP
 //        .foldLeft("")(_ + "/" + _)
 
     return keywords.intersect(listOfPostStems)
-
   }
 
   def deAccent(str: String): String = {

@@ -19,7 +19,7 @@ import scala.concurrent.ExecutionContextExecutor
 /**
   * Created by apiotrowski on 14.10.2017.
   */
-class Scraper(indexer: ActorRef, keyword: String) extends Actor {
+class Scraper(indexer: ActorRef) extends Actor {
 
   implicit val system: ActorSystem = context.system
   implicit val materializer: ActorMaterializer = ActorMaterializer()
@@ -30,8 +30,8 @@ class Scraper(indexer: ActorRef, keyword: String) extends Actor {
   val urlValidator = new UrlValidator()
 
   val polishStemmer = new PolishStemmer
-  val stemmer = new Stemmer(polishStemmer, keyword)
-  val bayesClassifier = new KeywordBayesClassifier(polishStemmer, keyword)
+  val stemmer = new Stemmer(polishStemmer)
+  val bayesClassifier = new KeywordBayesClassifier(polishStemmer)
   val wordnetClient = new WordnetClient(log)
 
   def receive: Receive = {
@@ -97,7 +97,7 @@ class Scraper(indexer: ActorRef, keyword: String) extends Actor {
   //        .filter(post => classifier.evaluateKeyWordPredicate(post))
             .map(post => Comment(post, wordnetClient.evaluateEmotions(post.split("\\s").toList), Calendar.getInstance().toInstant))
 
-      return Some(Content(title, List(keyword), Some(Data(Comment("TODO", Markedness.NEUTRAL,
+      return Some(Content(title, List("TODO"), Some(Data(Comment("TODO", Markedness.NEUTRAL,
         Calendar.getInstance().toInstant), listOfComments)), links))
     } else {
       //jezeli nie html tylko jakis obrazek to zwracamy None

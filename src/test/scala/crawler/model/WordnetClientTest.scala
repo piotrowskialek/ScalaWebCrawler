@@ -8,7 +8,7 @@ import org.scalatest.FlatSpec
 class WordnetClientTest extends FlatSpec{
 
   implicit val system: ActorSystem = ActorSystem()
-  val supervisor: ActorRef = system.actorOf(Props(new Supervisor(system, "")))
+  val supervisor: ActorRef = system.actorOf(Props(new Supervisor(system)))
   val log: LoggingAdapter = Logging(system, supervisor) //has to create for a logger
   val wordnetClient = new WordnetClient(log)
 

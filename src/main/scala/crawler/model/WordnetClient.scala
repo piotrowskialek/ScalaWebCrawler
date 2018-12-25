@@ -8,7 +8,7 @@ import scala.util.parsing.json.JSON
 
 class WordnetClient(log: LoggingAdapter) {
 
-  val stemmer = new Stemmer(new PolishStemmer, "")
+  val stemmer = new Stemmer(new PolishStemmer)
 
   val WORDNET_API_URL: String = "http://plwordnet.pwr.wroc.pl/wordnet/api/lexemes/"
   val EMOTION_API_URL: String = "http://plwordnet.pwr.wroc.pl/wordnet/api/emotions/"

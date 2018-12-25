@@ -1,41 +1,53 @@
 package crawler.model
 
+import java.text.Normalizer
+import java.util.Locale
+import java.util.regex.Pattern
+
 import de.daslaboratorium.machinelearning.classifier.bayes.BayesClassifier
 import morfologik.stemming.polish.PolishStemmer
 
 import scala.collection.JavaConverters._
 import scala.io.BufferedSource
 
-class KeywordBayesClassifier(stemmer: PolishStemmer, keyword: String) extends KeywordContainerPredicate {
+class KeywordBayesClassifier(stemmer: PolishStemmer) extends KeywordContainerPredicate {
 
-  import KeywordBayesClassifier.bayesClassifier
+  import KeywordBayesClassifier.{bayesClassifier, keywords}
 
   override def evaluateKeyWordPredicate(post: String): Boolean = {
-    if (!hasKeywordInAnyForm(post))
+
+    val associatedKeywords: List[String] = getAssociatedKeywords(post)
+    if (associatedKeywords.isEmpty)
       return false
     bayesClassifier.classify(List(post).asJava).getCategory
   }
 
-  def hasKeywordInAnyForm(post: String): Boolean = {
-    var keywordStem: String = ""
-    val lookup = stemmer.lookup(keyword)
-    if (lookup.isEmpty)
-      keywordStem = keyword //case kiedy keyword sie nie stemuje, wtedy uznaje ze stem = keyword
-    keywordStem = lookup.get(0).getStem.toString
+  def getAssociatedKeywords(post: String): List[String] = {
 
     val listOfPostStems: Seq[String] = post.split(" ")
-      .map(word => stemmer.lookup(word).asScala.map(_.getStem).foldLeft("")(_ + "/" + _))
+      .map(word => stemmer.lookup(word).asScala
+        .map(_.getStem)
+        .map(_.toString)
+        .map(_.toLowerCase(new Locale("pl")))
+        .map(deAccent)
+        .headOption
+        .getOrElse("")) //todo check if head or foldLeft is better
+    //        .foldLeft("")(_ + "/" + _)
 
-    val stringOfPostStems = listOfPostStems.foldLeft("")(_ + "/" + _)
-    if (stringOfPostStems.contains(keywordStem))
-      return true
-    else
-      return false
+    return keywords.intersect(listOfPostStems)
   }
+
+  def deAccent(str: String): String = {
+    val nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD)
+    val pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
+    pattern.matcher(nfdNormalizedString).replaceAll("").replaceAll("ł", "l").replaceAll("Ł", "L")
+  }
+
 }
 
 object KeywordBayesClassifier {
 
+  val keywords: List[String] = io.Source.fromFile("src/resources/keywords.csv").getLines().toList
   val bayesClassifier: BayesClassifier[String, Boolean] = new BayesClassifier[String, Boolean]()
   val csv: BufferedSource = io.Source.fromFile("src/resources/learning_data.csv")
   csv.getLines().foreach(rawLine => {

@@ -11,7 +11,7 @@ class IndexerTest extends TestKit(ActorSystem("MySpec")) with ImplicitSender
   with WordSpecLike with Matchers with BeforeAndAfterAll {
 
   val keyword: String = "rysy"
-  val supervisor: ActorRef = system actorOf Props(new Supervisor(system, keyword.toLowerCase))
+  val supervisor: ActorRef = system actorOf Props(new Supervisor(system))
   val dbRepository: ActorRef = system actorOf Props(new DbRepository())
   val indexer: ActorRef = system actorOf Props(new Indexer(self, dbRepository))
 

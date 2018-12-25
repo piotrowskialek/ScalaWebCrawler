@@ -15,7 +15,7 @@ class StemmerTest extends FlatSpec {
     "małe yosemite na miarę możliwości naszej jury",
     "asewrgertd asdasda sdasdeferg"
   )
-  val stemmer = new Stemmer(new PolishStemmer(), "rysy")
+  val stemmer = new Stemmer(new PolishStemmer())
 
   listOfTestCases(0) should "be true" in {
     assert(stemmer.evaluateKeyWordPredicate(listOfTestCases(0)))
