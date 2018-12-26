@@ -16,7 +16,7 @@ class WordnetClient(log: LoggingAdapter) {
   val WORDNET_API_URL: String = "http://plwordnet.pwr.wroc.pl/wordnet/api/lexemes/"
   val EMOTION_API_URL: String = "http://plwordnet.pwr.wroc.pl/wordnet/api/emotions/"
 
-  val MAX_TIMEOUT_MILIS = 20000
+  val MAX_TIMEOUT_MILIS = 40000
 
   val REFERER_HEADER_KEY: String= "Referer"
   val REFERER_HEADER_VAL: String = "http://plwordnet.pwr.wroc.pl/wordnet/7c93b054-2081-11e8-b33d-8bb6af2a20b8"
@@ -105,7 +105,7 @@ class WordnetClient(log: LoggingAdapter) {
   }
 
   def evaluateEmotions(sentence: List[String]): Markedness.Value = {
-    val filteredSentence = sentence.filter(word => stemmer.checkIfAdjective(stemmer.parse(word)))
+    val filteredSentence: List[String] = sentence.filter(word => stemmer.checkIfAdjective(stemmer.parse(word)))
     //optymalizacja, ewaluujemy tylko przymiotniki
 
     val listOfEmotions: List[(String, List[(String, String, String)])] = filteredSentence.map(word => (word, getEmotions(word)))

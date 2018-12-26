@@ -60,10 +60,10 @@ class StemmerTest extends FlatSpec {
     assertResult(List("rysy")) {
       stemmer.getAssociatedKeywords("Rysy są ładne")
     }
-    assertResult(List("dolina", "chocholowska")) {
+    assertResult(List("chocholowska")) {
       stemmer.getAssociatedKeywords("Dolina Chochołowska jest piękna")
     }
-    assertResult(List("dolina", "chocholowskiej")) {
+    assertResult(List("chocholowskiej")) {
       stemmer.getAssociatedKeywords("W Dolinie Chochołowskiej jest pięknie")
     }
     assertResult(List("gerlach")) {

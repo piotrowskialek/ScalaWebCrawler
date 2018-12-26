@@ -1,7 +1,7 @@
 package crawler.actors
 
 import java.net.URL
-import java.util.{Calendar, Locale}
+import java.util.Locale
 
 import akka.actor.{Actor, ActorRef, _}
 import akka.event.{Logging, LoggingAdapter}
@@ -50,17 +50,21 @@ class Scraper(indexer: ActorRef) extends Actor {
     val contentType: String = response.contentType
     if (contentType.startsWith("text/html")) {
       val doc: Document = response.parse()
+//        .map(post => post.text() + "" + post.parent().parent().parent().parent().parent().parent().getElementsByClass(".").tagName())//////
 
-      val listOfPosts: List[String] = doc
+      val listOfPosts: List[(String, Option[String])] = doc
         .getElementsByClass("postbody")
         .asScala
-        .map(post => post.text())//////
+        .map(post => (post.text(), Option(post.parent().parent().parent().parent().parent().parent()) //spytac grzegorza czy nie da sie ladniej jakos xD
+          .map(_.previousElementSibling())
+          .map(_.getElementsByClass("gensmall"))
+          .map(_.last())
+          .map(_.text())
+          .map(_.split("Napisane: ").last)
+          .map(_.trim))
+        )
         .toList
-      //dla kazdego dodaj date postu
       listOfPosts.map(post => post).foreach(post => log.info(s"In url: [$url] Found post: $post"))
-
-      //TODO append date
-
 
       //TODO OP
 //      val pageClass: mutable.Seq[Element] = doc.getElementsByClass("nav").asScala
@@ -93,20 +97,20 @@ class Scraper(indexer: ActorRef) extends Actor {
         .toList
 
         val listOfComments: List[Comment] = listOfPosts
-            .map(post => post.toLowerCase(new Locale("pl")).replaceAll("[\\.\\;\\?]+", ""))
-            .map(post => (post, stemmer.checkSenseAndGetAssociatedKeywords(post)))
-            .map(post => ScrapingData(post._1, post._2._1, post._2._2))
+            .map(post => (post._1.toLowerCase(new Locale("pl")).replaceAll("[\\.\\;\\?]+", ""), post._2))
+            .map(post => (post._1, stemmer.checkSenseAndGetAssociatedKeywords(post._1), post._2))
+            .map(post => ScrapingData(post._1, post._2._1, post._2._2, post._3))
             .filter(_.hasSense)
   //        .filter(post => classifier.evaluateKeyWordPredicate(post))
             .map(data => Comment(data.post, wordnetClient.evaluateEmotions(data.post.split("\\s").toList),
-          Calendar.getInstance().toInstant, data.associatedKeywords))
+          data.dateOfPost, data.associatedKeywords))
 
       return Some(Content(title,
         Some(Data(
           Comment(
             "POST OPA",
             Markedness.NEUTRAL,
-            Calendar.getInstance().toInstant,
+            Option("DATA POSTU OPA"),
             List("KEYWORDY OPA")
           ), listOfComments)), links))
     } else {

@@ -1,7 +1,6 @@
 package crawler.actors
 
 import java.net.URL
-import java.util.Calendar
 
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
@@ -25,8 +24,8 @@ class DbRepositoryTest extends TestKit(ActorSystem("MySpec")) with ImplicitSende
       val url: URL = new URL("http://www.onet.pl")
       val persistData: Persist = Persist(
         url,
-        Comment("TODO", Markedness.NEUTRAL, Calendar.getInstance().toInstant, List("")),
-        List(Comment("TODO", Markedness.NEUTRAL, Calendar.getInstance().toInstant, List("")))
+        Comment("TODO", Markedness.NEUTRAL, Option("date"), List("")),
+        List(Comment("TODO", Markedness.NEUTRAL, Option("date"), List("")))
       )
       dbRepository ! persistData
       expectMsg(PersistFinished(url))

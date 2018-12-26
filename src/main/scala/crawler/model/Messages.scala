@@ -1,7 +1,6 @@
 package crawler.model
 
 import java.net.URL
-import java.time.Instant
 
 /**
   * Created by apiotrowski on 14.10.2017.
@@ -13,8 +12,8 @@ case class ProcessNextUrl()
 
 case class Content(title: String, data: Option[Data], urls: List[URL])
 case class Data(originalPost: Comment, listOfComments: List[Comment])
-case class Comment(post: String, emotion: String, dateOfPost: Instant, associatedKeywords: List[String])
-case class ScrapingData(post: String, hasSense: Boolean, associatedKeywords: List[String])
+case class Comment(post: String, emotion: String, dateOfPost: Option[String], associatedKeywords: List[String])
+case class ScrapingData(post: String, hasSense: Boolean, associatedKeywords: List[String], dateOfPost: Option[String])
 
 case class ScrapFinished(url: URL)
 case class IndexFinished(url: URL, urls: List[URL])
