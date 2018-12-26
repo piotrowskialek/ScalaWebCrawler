@@ -41,6 +41,7 @@ class Supervisor(system: ActorSystem) extends Actor {
           .filter(_.getHost.contains("forum.turystyka-gorska.pl"))
           .filter(!_.toURI.toString.contains("memberlist"))
           .filter(!_.toURI.toString.contains("ucp.php"))
+          .filter(!_.toURI.toString.contains("posting.php"))
           .foreach(scrap)
 
       checkAndShutdown(url)
