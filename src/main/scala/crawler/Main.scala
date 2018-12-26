@@ -23,7 +23,7 @@ object Main extends App {
 
   supervisor ! Start(new URL("http://forum.turystyka-gorska.pl/index.php"))
 
-  Await.result(system.whenTerminated, 5 hours)
+  Await.result(system.whenTerminated, 24 hours)
 
   supervisor ! PoisonPill
   system.terminate
