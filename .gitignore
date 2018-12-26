@@ -8,3 +8,8 @@ graphics/
 target/scala-2.12/classes/
 .DS_Store
 target/scala-2.12/test-classes/
+/target/scala-2.12/
+/target/test-reports/
+project/project/
+target/scala-2.12/ScalaCrawler-assembly-1.0.jar
+target/test-reports/
