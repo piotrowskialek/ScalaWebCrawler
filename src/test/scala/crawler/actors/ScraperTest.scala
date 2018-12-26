@@ -7,6 +7,8 @@ import akka.testkit.{ImplicitSender, TestKit}
 import crawler.model.{Scrap, ScrapFinished}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
+import scala.concurrent.duration._
+
 class ScraperTest extends TestKit(ActorSystem("MySpec")) with ImplicitSender
   with WordSpecLike with Matchers with BeforeAndAfterAll {
 
@@ -22,6 +24,7 @@ class ScraperTest extends TestKit(ActorSystem("MySpec")) with ImplicitSender
 
   "A scraper actor" must {
     "scrap" in {
+      implicit val timeout: FiniteDuration = 5.seconds
       val url: URL = new URL("http://forum.turystyka-gorska.pl/viewtopic.php?f=1&t=6970")
       scraper ! Scrap(url)
       expectMsg(ScrapFinished(url))
