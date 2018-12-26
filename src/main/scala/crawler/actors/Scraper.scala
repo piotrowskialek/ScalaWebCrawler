@@ -50,7 +50,6 @@ class Scraper(indexer: ActorRef) extends Actor {
     val contentType: String = response.contentType
     if (contentType.startsWith("text/html")) {
       val doc: Document = response.parse()
-//        .map(post => post.text() + "" + post.parent().parent().parent().parent().parent().parent().getElementsByClass(".").tagName())//////
 
       val listOfPosts: List[(String, Option[String])] = doc
         .getElementsByClass("postbody")
@@ -97,12 +96,12 @@ class Scraper(indexer: ActorRef) extends Actor {
         .toList
 
         val listOfComments: List[Comment] = listOfPosts
-            .map(post => (post._1.toLowerCase(new Locale("pl")).replaceAll("[\\.\\;\\?]+", ""), post._2))
-            .map(post => (post._1, stemmer.checkSenseAndGetAssociatedKeywords(post._1), post._2))
+            .map(post => (post._1, post._2))
+            .map(post => (post._1, stemmer.checkSenseAndGetAssociatedKeywords(post._1.toLowerCase(new Locale("pl")).replaceAll("[\\.\\;\\?]+", "")), post._2))
             .map(post => ScrapingData(post._1, post._2._1, post._2._2, post._3))
             .filter(_.hasSense)
   //        .filter(post => classifier.evaluateKeyWordPredicate(post))
-            .map(data => Comment(data.post, wordnetClient.evaluateEmotions(data.post.split("\\s").toList),
+            .map(data => Comment(data.post, wordnetClient.evaluateEmotions(data.post.replaceAll("[\\.\\;\\?]+", "").split("\\s").toList),
           data.dateOfPost, data.associatedKeywords))
 
       return Some(Content(title,
