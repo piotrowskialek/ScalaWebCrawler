@@ -51,33 +51,27 @@ class Scraper(indexer: ActorRef) extends Actor {
     if (contentType.startsWith("text/html")) {
 
       val doc: Document = response.parse()
-      val listOfPosts: List[PostWithDate] = extractListOfPosts(doc)
-      listOfPosts.map(post => post).foreach(post => log.info(s"In url: [$url] Found post: $post"))
-
+      val listOfPostsWithOp: List[PostWithDate] = extractListOfPosts(doc)
+      listOfPostsWithOp.map(post => post).foreach(post => log.info(s"In url: [$url] Found post: $post"))
+      val listOfPosts: List[PostWithDate] = listOfPostsWithOp.tail
       //TODO OP
-//      val pageClass: mutable.Seq[Element] = doc.getElementsByClass("nav").asScala
-//      val originalPoster: String = if(pageClass.nonEmpty && pageClass.head.text().split(" ")(1) != "1") {
-//        listOfPosts = listOfPosts.tail
-//        listOfPosts.head
-//      }
-//      else
-//        ""
 
       val title: String = doc.getElementsByTag("title").asScala
         .map(e => e.text())
         .head
       val links: List[URL] = extractLinks(doc, url)
       val listOfComments: List[Comment] = parseListOfPosts(listOfPosts)
+      val rawOriginalPost: PostWithDate = listOfPostsWithOp.head
+      val originalPost: Comment = Comment(
+        rawOriginalPost.postText,
+        wordnetClient.evaluateEmotions(rawOriginalPost.postText.replaceAll("[\\.\\;\\?]+", "").split("\\s").toList).toString,
+        rawOriginalPost.date,
+        stemmer.checkSenseAndGetAssociatedKeywords(
+          rawOriginalPost.postText.toLowerCase(new Locale("pl")).replaceAll("[\\.\\;\\?]+", "")
+        )._2
+      )
 
-      return Some(Content(title,
-        Some(Data(
-          Comment(
-            "POST OPA",
-            Markedness.NEUTRAL,
-            Option("DATA POSTU OPA"),
-            List("KEYWORDY OPA")
-          ), listOfComments
-        )), links))
+      return Some(Content(title, Some(Data(originalPost, listOfComments)), links))
     } else {
       return None
     }
