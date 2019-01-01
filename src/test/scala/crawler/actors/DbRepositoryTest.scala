@@ -20,6 +20,18 @@ class DbRepositoryTest extends TestKit(ActorSystem("MySpec")) with ImplicitSende
   }
 
   "DbRepository actor" must {
+
+    "update correctly OP" in {
+      val url: URL = new URL("http://www.forum.turystyka-gorska.pl/viewtopic.php?f=13&t=17586&sid=026204950b8c3db20552bf8f6131acdc")
+      val persistData: Persist = Persist(
+        url,
+        Comment("TODO", Markedness.NEUTRAL, Option("date"), List("")),
+        List(Comment("TODO", Markedness.NEUTRAL, Option("date"), List("")))
+      )
+      dbRepository ! persistData
+      expectMsg(PersistFinished(url))
+    }
+
     "save content when recieved so" in {
       val url: URL = new URL("http://www.onet.pl")
       val persistData: Persist = Persist(

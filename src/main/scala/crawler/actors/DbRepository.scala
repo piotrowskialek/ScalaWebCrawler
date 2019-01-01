@@ -27,19 +27,25 @@ class DbRepository() extends Actor {
 
   def receive: Receive = {
     case Persist(url: URL, originalPost: Comment, listOfComments: List[Comment]) =>
+      val parsedURL: String = url.toString.split("&").filter(!_.contains("start")).reduce(_ + "&" + _).replace(".", ";")
 
-
-      val parsedURL: String = url.toString.split("&").filter(!_.contains("start")).reduce(_ + "&" + _)
       //przed zapisem sprawdz czy jest juz doc z postami z tego freda
       //jak jest to doklej fredy i co z postem opa na podstawie czego stwierdzic? jezeli url przyjdzie bez start #esesman
-      val insertData: MongoData = MongoData(parsedURL.replace(".", ";"), Data(originalPost, listOfComments))
 
-      val existingCollection: Option[MongoData] = Await.result(collection.find(equal("url", parsedURL)).headOption(), Duration(5, TimeUnit.SECONDS))
+      val existingCollection: Option[MongoData] = Await.result(collection.findOneAndDelete(equal("url", parsedURL)).headOption(),
+        Duration(5, TimeUnit.SECONDS))
+
+      var OP = originalPost
+      if (parsedURL.contains("start")) {
+        OP = existingCollection.map(_.data).map(_.originalPost).getOrElse(originalPost)
+      }
+      val insertData: MongoData = MongoData(parsedURL,
+        Data(OP, listOfComments ::: existingCollection.map(_.data).map(_.listOfComments).getOrElse(List())))
 
       collection.insertOne(insertData).subscribe(new Observer[Completed] {
         override def onNext(result: Completed): Unit = None
-        override def onError(e: Throwable): Unit = log.error(s"Failed saving OP: $originalPost Exception: $e")
-        override def onComplete(): Unit = log.info(s"Saved OP: $originalPost with ${listOfComments.size} comments")
+        override def onError(e: Throwable): Unit = log.error(s"Failed saving OP: $OP Exception: $e")
+        override def onComplete(): Unit = log.info(s"Saved OP: $OP with ${listOfComments.size} comments")
       })
       sender() ! PersistFinished(url)
   }
