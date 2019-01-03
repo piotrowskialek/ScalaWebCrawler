@@ -39,7 +39,6 @@ class Supervisor(system: ActorSystem) extends Actor {
           .filter(l => !scrapCounts.contains(l))
           .filter(l => !listOfForbiddenHosts.exists(l.getHost.contains(_)))
           .filter(_.getHost.contains("forum.turystyka-gorska.pl"))
-          .filter(_.toURI.toString.contains("viewforum.php"))
           .filter(!_.toURI.toString.contains("memberlist"))
           .filter(!_.toURI.toString.contains("ucp.php"))
           .filter(!_.toURI.toString.contains("posting.php"))

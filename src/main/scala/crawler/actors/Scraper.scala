@@ -53,7 +53,10 @@ class Scraper(indexer: ActorRef) extends Actor {
       val doc: Document = response.parse()
       val listOfPostsWithOp: List[PostWithDate] = extractListOfPosts(doc)
       listOfPostsWithOp.map(post => post).foreach(post => log.info(s"In url: [$url] Found post: $post"))
-      val listOfPosts: List[PostWithDate] = listOfPostsWithOp.tail
+      val listOfPosts: List[PostWithDate] = listOfPostsWithOp match {
+        case Nil => List()
+        case _ => listOfPostsWithOp.tail
+      }
       //TODO OP
 
       val title: String = doc.getElementsByTag("title").asScala
@@ -61,7 +64,11 @@ class Scraper(indexer: ActorRef) extends Actor {
         .head
       val links: List[URL] = extractLinks(doc, url)
       val listOfComments: List[Comment] = parseListOfPosts(listOfPosts)
-      val rawOriginalPost: PostWithDate = listOfPostsWithOp.head
+      val rawOriginalPost: PostWithDate = listOfPostsWithOp match {
+        case Nil => PostWithDate("", None)
+        case _ => listOfPostsWithOp.head
+      }
+
       val originalPost: Comment = Comment(
         rawOriginalPost.postText,
         wordnetClient.evaluateEmotions(rawOriginalPost.postText.replaceAll("[\\.\\;\\?]+", "").split("\\s").toList).toString,

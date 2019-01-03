@@ -36,7 +36,7 @@ class DbRepository() extends Actor {
         Duration(5, TimeUnit.SECONDS))
 
       var OP = originalPost
-      if (parsedURL.contains("start")) {
+      if (url.toURI.toString.contains("start")) {
         OP = existingCollection.map(_.data).map(_.originalPost).getOrElse(originalPost)
       }
       val insertData: MongoData = MongoData(parsedURL,
