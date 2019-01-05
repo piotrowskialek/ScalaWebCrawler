@@ -30,7 +30,7 @@ class DbRepository() extends Actor {
       val parsedURL: String = url.toString.split("&").filter(!_.contains("start")).reduce(_ + "&" + _).replace(".", ";")
 
       //przed zapisem sprawdz czy jest juz doc z postami z tego freda
-      //jak jest to doklej fredy i co z postem opa na podstawie czego stwierdzic? jezeli url przyjdzie bez start #esesman
+      //jak jest to doklej fredy i co z postem opa na podstawie czego stwierdzic? jezeli url przyjdzie bez start
 
       val existingCollection: Option[MongoData] = Await.result(collection.findOneAndDelete(equal("url", parsedURL)).headOption(),
         Duration(5, TimeUnit.SECONDS))
