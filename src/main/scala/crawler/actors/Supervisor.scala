@@ -19,7 +19,7 @@ class Supervisor(system: ActorSystem) extends Actor {
   val log = Logging(context.system, this)
 
   val maxPages: Int = 500000
-  val maxRetries: Int = 2
+  val maxRetries: Int = 5
 
   var numVisited: Int = 0
   var indexedUrls: Set[URL] = Set.empty
